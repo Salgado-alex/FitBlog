@@ -1,3 +1,4 @@
+// Get the module express
 const express = require('express');
 const expressHandlebars = require('express-handlebars');
 const session = require('express-session');
@@ -7,6 +8,7 @@ const canvas = require('canvas');
 // Configuration and Setup
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+// Get access to all the methods of express
 const app = express();
 const PORT = 3000;
 
@@ -75,7 +77,7 @@ app.use(
 // should be used in your template files. 
 // 
 app.use((req, res, next) => {
-    res.locals.appName = 'MicroBlog';
+    res.locals.appName = 'FitBLog';
     res.locals.copyrightYear = 2024;
     res.locals.postNeoType = 'Post';
     res.locals.loggedIn = req.session.loggedIn || false;
@@ -86,7 +88,6 @@ app.use((req, res, next) => {
 app.use(express.static('public'));                  // Serve static files
 app.use(express.urlencoded({ extended: true }));    // Parse URL-encoded bodies (as sent by HTML forms)
 app.use(express.json());                            // Parse JSON bodies (as sent by API clients)
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Routes
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -139,12 +140,20 @@ app.get('/avatar/:username', (req, res) => {
 });
 app.post('/register', (req, res) => {
     // TODO: Register a new user
+    // When for register button is clicked call this func
+    registerUser(req, res)
 });
+
+// app.post('/register, registerUser')
+
 app.post('/login', (req, res) => {
-    // TODO: Login a user
+     // When login button is clicked call this func
+    loginUser(req, res)
 });
+
 app.get('/logout', (req, res) => {
     // TODO: Logout the user
+    logoutUser(req, res)
 });
 app.post('/delete/:id', isAuthenticated, (req, res) => {
     // TODO: Delete a post if the current user is the owner
@@ -175,19 +184,46 @@ let users = [
 // Function to find a user by username
 function findUserByUsername(username) {
     // TODO: Return user object if found, otherwise return undefined
+    const existingUser =  users.find(user => user.username === username);
+    if(existingUser){
+        return existingUser;
+    }
+    else{
+        return undefined
+    }
 }
 
 // Function to find a user by user ID
 function findUserById(userId) {
     // TODO: Return user object if found, otherwise return undefined
+    // const existingID =  users.find(user => user.id === userId);
+    // if(existingUser){
+    //     return existingUser;
+    // }
+    // else{
+    //     return undefined
+    // }
 }
 
 // Function to add a new user
 function addUser(username) {
     // TODO: Create a new user object and add to users array
+    // We need to access the last id
+    let idNum = users[users.length - 1].id
+    // New object
+    let newUser = {
+        id : ++idNum,
+        username: username,
+        avatar_url: undefined,
+        memberSince: '2024-05-16 12:00'
+    }
+    // Adds the user to the end of the users array
+    users.push(newUser)
+    console.log(users);
 }
 
 // Middleware to check if user is authenticated
+// If req.session.userId exist it calls the next func for the next authentication
 function isAuthenticated(req, res, next) {
     console.log(req.session.userId);
     if (req.session.userId) {
@@ -200,21 +236,67 @@ function isAuthenticated(req, res, next) {
 // Function to register a user
 function registerUser(req, res) {
     // TODO: Register a new user and redirect appropriately
+    // Get the user name that was typed by req.body
+    const username  = req.body.username;
+    // If user name already exist dont let user register
+    const existingUser = findUserByUsername(username)
+    if (existingUser) {
+        // Username already exists, redirect back to registration page with an error message
+        return res.redirect('/register?error=Username%20already%20exists');
+    }
+    // Let them register and send call func adduser to add him into the array of Users
+    else{
+        console.log("Got username " + username);
+        addUser(username);
+        console.log("You have succesfully registered")
+    }
 }
 
 // Function to login a user
 function loginUser(req, res) {
     // TODO: Login a user and redirect appropriately
+    // Get the user name that was typed by req.body
+    const  username  = req.body.username;
+    const existingUser = findUserByUsername(username)
+    // Check for existing username
+    // const userid = req.session.userId
+    // const existingUser = findUserByUsername(userid)
+    // If found log in 
+    if (existingUser) {
+        // indcates the user is logged in
+        req.session.loggedIn = true;
+        // sets userID
+        req.session.userId = existingUser.id
+        console.log(existingUser.id);
+        // redirects to the main page
+        res.redirect('/');
+        console.log("logging in");
+    }
+    // User not in the system
+    else{
+        console.log("no user found");
+    } 
 }
 
 // Function to logout a user
 function logoutUser(req, res) {
     // TODO: Destroy session and redirect appropriately
+    req.session.destroy( err =>{
+        if(err){
+            console.error("Error destroying session: ", err);
+            res.redirect('/error')
+        }
+        else{
+            res.redirect('/')
+            console.log("logout!")
+        }
+    })
 }
 
 // Function to render the profile page
 function renderProfile(req, res) {
     // TODO: Fetch user posts and render the profile page
+
 }
 
 // Function to update post likes
