@@ -130,15 +130,32 @@ app.get("/error", (req, res) => {
 
 app.get("/post/:id", (req, res) => {
   // TODO: Render post detail page
+  const postId = req.session.id;
+  const post = posts.find((post) => post.id === postId);
+
+  if (post) {
+    res.render("postDetail", { post, style: "styles.css" });
+  } else {
+    console.log("no post")
+  }
 });
 app.post("/posts", (req, res) => {
   // TODO: Add a new post and redirect to home
+  const { title, postInfo } = req.body;
+  const userId = req.session.userId;
+  const user = findUserById(userId);
+  if (!userId || !user) {
+    return res.redirect("/login");
+  }
+  addPost(title, postInfo, user);
+  res.redirect("/");
 });
 app.post("/like/:id", (req, res) => {
   // TODO: Update post likes
 });
 app.get("/profile", isAuthenticated, (req, res) => {
   // TODO: Render profile page
+    renderProfile(req,res);
 });
 app.get("/avatar/:username", (req, res) => {
   // TODO: Serve the avatar image for the user
@@ -181,7 +198,7 @@ let posts = [
   {
     id: 1,
     title: "Sample Post",
-    content: "This is a sample post.",
+    content: "This is a sample post written by me .",
     username: "SampleUser",
     timestamp: "2024-01-01 10:00",
     likes: 0,
@@ -231,6 +248,7 @@ function findUserById(userId) {
   // else{
   //     return undefined
   // }
+  return users.find((user) => user.id === userId);
 }
 
 // Function to add a new user
@@ -243,7 +261,7 @@ function addUser(username) {
     id: ++idNum,
     username: username,
     avatar_url: undefined,
-    memberSince: "2024-05-16 12:00",
+    memberSince: new Date().toLocaleString(),
   };
   // Adds the user to the end of the users array
   users.push(newUser);
@@ -323,6 +341,25 @@ function logoutUser(req, res) {
 // Function to render the profile page
 function renderProfile(req, res) {
   // TODO: Fetch user posts and render the profile page
+   const currentUser = getCurrentUser(req);
+
+   if (currentUser) {
+    // Fetch user posts filters post to only currentuser
+    const userPosts = getPosts().filter(
+      (post) => post.username === currentUser.username
+    );
+    // Render the profile page with user information and posts
+    res.render("profile", {
+      user: currentUser,
+      posts: userPosts,
+      style: "profile.css",
+    });
+    console.log("In profile of ", currentUser);
+   } else {
+    // If the current user is not found, redirect to login page
+    res.redirect("/login");
+   }
+   
 }
 
 // Function to update post likes
@@ -338,6 +375,7 @@ function handleAvatar(req, res) {
 // Function to get the current user from session
 function getCurrentUser(req) {
   // TODO: Return the user object if the session user ID matches
+  return users.find((user) => user.id === req.session.userId);
 }
 
 // Function to get all posts, sorted by latest first
@@ -346,8 +384,20 @@ function getPosts() {
 }
 
 // Function to add a new post
-function addPost(title, content, user) {
+function addPost(title, postInfo, user) {
   // TODO: Create a new post object and add to posts array
+   let idNum = posts.length > 0 ? posts[posts.length - 1].id + 1 : 1;
+   let newPost = {
+    id: idNum,
+    title: title,
+    content: postInfo,
+    username: user.username,
+    timestamp: new Date().toLocaleString(),
+    likes: 0,
+   };
+   posts.push(newPost);
+   console.log(posts)
+   
 }
 
 // Function to generate an image avatar

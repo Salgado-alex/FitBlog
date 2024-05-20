@@ -3,15 +3,19 @@
 
 {{! New Post Submission Form }}
 <section class="content-container">
+   {{! <div class="create-post-section">}}
+
     {{#if loggedIn}}
         <!-- show the create post form when logged in -->
+        
         <section class="post-form">
+            <h1 class="home-title">Create a New post</h1>
             <!-- make a header here -->
             <form action="/posts" method="POST">
                 <!-- title input field name = "title" -->
                 <!-- text area input field name = "content" -->
                 <input type="text" placeholder="Title" name="title" id="title">
-                <input type="text" placeholder="What is on you're mind {{user.username}}"  name="postInfo" id="postInfo">
+                <textarea type="text" placeholder="What is on you're mind {{user.username}}"  name="postInfo" id="postInfo"></textarea>
                 <div class="form-actions">
                     <button type="button" class="emoji-button" onclick="toggleEmojiPanel()">😀</button>
                     <button type="submit" class="post-button">Post</button>
@@ -24,9 +28,10 @@
             </div>
         </section>
     {{/if}}
-
+    {{!</div>}}
     <section class="posts-list">
         <!-- recent posts -->
+        <h1 class="home-title">Recent Post</h1>
         {{#if posts.length}}
         <ul>
             {{#each posts}}
@@ -36,6 +41,7 @@
         </ul>
         {{else}}
             <!-- no posts, oh no, what now? -->
+            <p>No posts available.</p>
         {{/if}}
     </section>
 </section>

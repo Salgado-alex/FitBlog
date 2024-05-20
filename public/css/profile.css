@@ -1,3 +1,164 @@
+html,
 body {
-  background-color: #23c6b0;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-image: linear-gradient(to bottom, #748d92, #d3d9d4);
+  font-family: sans-serif, "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS";
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+/*--------------Header---------------*/
+header {
+  color: #363636;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: auto;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.logo img {
+  width: 120px;
+  height: auto;
+}
+
+.logo h1 {
+  margin: 0;
+}
+
+nav ul {
+  list-style-type: none;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+nav ul li {
+  padding-right: 25px;
+}
+
+nav ul li a {
+  color: #363636;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 17px;
+}
+nav ul li a::after {
+  content: "";
+  width: 0;
+  height: 2px;
+  display: block;
+  margin-top: 3px;
+  right: 0;
+  background: #2763a3;
+  transition: width 0.3s ease;
+}
+
+nav ul li a:hover::after {
+  width: 100%;
+}
+/*-------------Body----------------------*/
+.profile-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.profile-info{
+
+  margin: 20px;
+  padding: 20px ;
+  background: #d2cbb8;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgb(0, 0, 0);
+}
+.profile-info h1{
+  margin: 0;
+}
+.user-posts {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.user-posts ul{
+  padding: 30px;
+}
+.post {
+  display: flex;
+  margin: 20px;
+  padding: 30px ;
+  background: #d2cbb8;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgb(0, 0, 0);
+}
+
+.post-content h2 {
+  margin: 0 0 10px;
+  font-size: 25px;
+  color: #000000;
+
+}
+
+.post-content p{
+  margin: 5px 0;
+  color: #000000;
+  padding-bottom: 40px;
+
+}
+.post-status-bar {
+  display: flex;
+  align-items: center;
+  padding: 8px 0 5px 0;
+  border-top: 1.5px solid #606060; 
+}
+#user-info-post{
+  font-size: 13px;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+}
+.post-status-bar span {
+  margin-right: 10px;
+  color: #888;
+}
+
+.like-button,
+.delete-button {
+  padding: 5px 10px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.like-button,.delete-button {
+  
+  background-color: transparent;
+}
+
+.fa-heart:hover{
+  color: red;
+}
+
+.fa-trash-alt:hover {
+  color: rgb(244, 87, 87);
+}
+
+
+/*-------------Footer----------------------*/
+footer {
+  color: #363636;
+  width: auto;
+  margin-top: auto;
+  text-align: center;
 }
