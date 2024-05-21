@@ -159,6 +159,15 @@ app.get("/profile", isAuthenticated, (req, res) => {
 });
 app.get("/avatar/:username", (req, res) => {
   // TODO: Serve the avatar image for the user
+  // Get parameter path value 
+  const username = req.params.username;
+  // Get first lettter and make it uppercase 
+  const firstLetter = username.charAt(0).toUpperCase();
+  // Call generateAvatar with the first letter
+  const avatarData = generateAvatar(firstLetter);
+  // Set Content-Type header to indicate image type and send the avatar image as a response
+  res.setHeader('Content-Type', 'image/png');
+  res.send(avatarData);
 });
 app.post("/register", (req, res) => {
   // TODO: Register a new user
@@ -365,6 +374,8 @@ function renderProfile(req, res) {
 // Function to update post likes
 function updatePostLikes(req, res) {
   // TODO: Increment post likes if conditions are met
+  let idNum = newPost[users.length - 1].id;
+
 }
 
 // Function to handle avatar generation and serving
@@ -405,8 +416,19 @@ function generateAvatar(letter, width = 100, height = 100) {
   // TODO: Generate an avatar image with a letter
   // Steps:
   // 1. Choose a color scheme based on the letter
+  const color = '#0000FF';
   // 2. Create a canvas with the specified width and height
+  const canvas = require('canvas').createCanvas(width, height);
+  const ctx = canvas.getContext('2d');
   // 3. Draw the background color
+  ctx.fillStyle = color;
+  ctx.fillRect(0, 0, width, height);
   // 4. Draw the letter in the center
+  ctx.fillStyle = '#fff'; 
+  ctx.font = `${height * 0.6}px Arial`; 
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(letter, width / 2, height / 2);
   // 5. Return the avatar as a PNG buffer
+  return canvas.toBuffer();
 }
