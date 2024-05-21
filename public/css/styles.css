@@ -90,7 +90,7 @@ textarea {
   border: none;
 }
 .post-form{
-  width: 40%;
+  width: auto;
 }
 /*-------Create A new Post-----------*/
 
@@ -139,7 +139,7 @@ textarea {
 
 .posts-list {
   margin: auto;
-  
+  width: 50%;
 }
 .posts-list ul{
   padding: 30px 10px;
@@ -147,6 +147,7 @@ textarea {
 .post {
   display: flex;
   margin: 20px;
+  flex-direction: column;
   padding: 30px 30px 20px 30px ;
   background: #d2cbb8;
   border-radius: 8px;
@@ -157,6 +158,7 @@ textarea {
   margin: 0 0 10px;
   font-size: 25px;
   color: #000000;
+  align-self: flex-start;
 
 }
 .header-avatar {
@@ -238,6 +240,10 @@ footer {
   .content-container{
     justify-content: center;
   }
+  .posts-list {
+  width: auto;
+  
+}
   .posts-list ul{
     padding: 10px;
   }

@@ -151,8 +151,9 @@ app.post("/posts", (req, res) => {
   addPost(title, postInfo, user);
   res.redirect("/");
 });
-app.post("/like/:id", (req, res) => {
+app.post("/like/:id", isAuthenticated, (req, res) => {
   // TODO: Update post likes
+  updatePostLikes(req, res);
 });
 app.get("/profile", isAuthenticated, (req, res) => {
   // TODO: Render profile page
@@ -215,6 +216,7 @@ let posts = [
     username: "SampleUser",
     timestamp: "2024-01-01 10:00",
     likes: 0,
+    likedAmount: [],
   },
   {
     id: 2,
@@ -223,6 +225,7 @@ let posts = [
     username: "AnotherUser",
     timestamp: "2024-01-02 12:00",
     likes: 0,
+    likedAmount: [],
   },
 ];
 let users = [
@@ -380,10 +383,27 @@ function renderProfile(req, res) {
 // Function to update post likes
 function updatePostLikes(req, res) {
   // TODO: Increment post likes if conditions are met
-  let idNum = newPost[users.length - 1].id;
-
+  // Get id beening passed in
+  const postId = req.params.id;
+  // Get current userid
+  const userId = req.session.userId;
+  // Find the post 
+  const post = posts.find(post => post.id === parseInt(postId));
+  console.log("postId")
+  console.log(post)
+  // If doesnt equal post 
+  if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+  }
+  // Dont allow to like the same post
+  if (post.likedAmount.includes(userId)) {
+    return res.status(403).json({ error: 'You already liked this post' });
+  }
+  // Increment likes
+  post.likes++;
+  post.likedAmount.push(userId);
+  res.status(200).json({ message: 'Post liked successfully', likes: post.likes });
 }
-
 // Function to handle avatar generation and serving
 function handleAvatar(req, res) {
   // TODO: Generate and serve the user's avatar image
@@ -405,12 +425,13 @@ function addPost(title, postInfo, user) {
   // TODO: Create a new post object and add to posts array
    let idNum = posts.length > 0 ? posts[posts.length - 1].id + 1 : 1;
    let newPost = {
-    id: idNum,
-    title: title,
-    content: postInfo,
-    username: user.username,
-    timestamp: new Date().toLocaleString(),
-    likes: 0,
+     id: idNum,
+     title: title,
+     content: postInfo,
+     username: user.username,
+     timestamp: new Date().toLocaleString(),
+     likes: 0,
+     likedAmount: [],
    };
    posts.push(newPost);
    console.log(posts)

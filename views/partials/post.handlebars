@@ -20,7 +20,7 @@
       <!-- everything that is shown in the status bar -->
       <!-- Heart = ♥ -->
       <!-- font awesome  trashcan = <i class="fas fa-trash-alt"> </i>-->
-      <span>Likes: {{likes}}</span>
+      <span class="likes-count">Likes: {{likes}}</span>
       {{!# of likes}}
       <button
         class="like-button"
@@ -42,12 +42,32 @@
 </div>
 <script>
 
-    function handleLikeClick(event) {
-        const postId = event.target.getAttribute('data-id');
-        console.log(postId);
-        // you might want to "fetch" something...  
+     function handleLikeClick(event) {
+      // you might want to "fetch" something...  
+      const likeElement = event.target.closest('.like-button');
+      const postId = likeElement.getAttribute('data-id');
+      console.log('postId:', postId);
+      // Send a post req
+     fetch(`/like/${postId}`, {
+            method: 'POST',
+        })
+        // If succesuful return .json
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        // If succesfull update likes
+        .then(data => {
+             const likeSpan = event.target.closest('.post-status-bar').querySelector('.likes-count');
+            likeSpan.textContent = `Likes: ${data.likes}`;
+        })
+        // Handel any errors
+        .catch(error => {
+            console.error('There was a problem with your fetch operation:', error);
+        });
     }
-
     function handleDeleteClick(event) {
         const buttonElement = event.target.closest('.delete-button');
         const postId = buttonElement.getAttribute('data-id');        
