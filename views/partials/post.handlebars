@@ -2,13 +2,9 @@
 <div class="post">
   <div class="post-avatar">
     <!-- the user's avatar -->
-     <img src="{{#if user.avatar_url}}
-                                        {{user.avatar_url}}
-                                    {{else}}
-                                        /avatar/{{username}}
-                                    {{/if}}" 
-                                    alt="User Avatar" 
-                                    class="header-avatar">
+    <img src="{{#if user.avatar_url}}{{user.avatar_url}}{{else}}/avatar/{{username}}{{/if}}" 
+     alt="User Avatar" 
+     class="header-avatar">
   </div>
   <div class="post-content ">
     <!-- the post -->
@@ -41,37 +37,71 @@
   </div>
 </div>
 <script>
+  function handleLikeClick(event) {
 
-     function handleLikeClick(event) {
-      // you might want to "fetch" something...  
-      const likeElement = event.target.closest('.like-button');
-      const postId = likeElement.getAttribute('data-id');
-      console.log('postId:', postId);
-      // Send a post req
-     fetch(`/like/${postId}`, {
-            method: 'POST',
-        })
-        // If succesuful return .json
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        // If succesfull update likes
-        .then(data => {
-             const likeSpan = event.target.closest('.post-status-bar').querySelector('.likes-count');
-            likeSpan.textContent = `Likes: ${data.likes}`;
-        })
-        // Handel any errors
-        .catch(error => {
-            console.error('There was a problem with your fetch operation:', error);
-        });
+    // you might want to "fetch" something...  
+    const likeElement = event.target.closest('.like-button');
+    const postId = likeElement.getAttribute('data-id');
+    console.log('postId:', postId);
+    // Send a post req
+    fetch(`/like/${postId}`, {
+      method: 'POST',
+  })
+    // If succesuful return .json
+    .then(response => {
+
+      if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+      return response.json();
+    })
+    // If succesfull update likes
+    .then(data => {
+
+      const likeSpan = event.target.closest('.post-status-bar').querySelector('.likes-count');
+      likeSpan.textContent = `Likes: ${data.likes}`;
+    })
+    // Handel any errors
+    .catch(error => {
+      console.error('There was a problem with your fetch operation:', error);
+    });
     }
     function handleDeleteClick(event) {
-        const buttonElement = event.target.closest('.delete-button');
-        const postId = buttonElement.getAttribute('data-id');        
 
-        // you might want to "fetch" something... 
-  }   
+      const buttonElement = event.target.closest('.delete-button');
+      const postId = buttonElement.getAttribute('data-id'); 
+      console.log(postId)
+             
+
+      // you might want to "fetch" something...
+      fetch(`/delete/${postId}`, {
+
+        method: 'POST',
+        credentials: 'same-origin'
+
+      })
+      // If succesuful return .json
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+          return response.json();
+      })
+        // If succesfull delete
+      .then(data => {
+        console.log(data.message);
+        const postElement = buttonElement.closest('.post');
+        console.log("Post Element:", postElement);
+        if (postElement) {
+            postElement.remove();
+          
+        } else {
+            console.error('Post element not found');
+        }
+    })
+      // Handel any errors
+      .catch(error => {
+        console.error('There was a problem with your fetch operation:', error);
+      });
+    }  
 </script>

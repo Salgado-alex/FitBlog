@@ -157,19 +157,11 @@ app.post("/like/:id", isAuthenticated, (req, res) => {
 });
 app.get("/profile", isAuthenticated, (req, res) => {
   // TODO: Render profile page
-    renderProfile(req,res);
+  renderProfile(req,res);
 });
 app.get("/avatar/:username", (req, res) => {
   // TODO: Serve the avatar image for the user
-  // Get parameter path value 
-  const username = req.params.username;
-  // Get first lettter and make it uppercase 
-  const firstLetter = username.charAt(0).toUpperCase();
-  // Call generateAvatar with the first letter
-  const avatarData = generateAvatar(firstLetter);
-  // Set Content-Type header to indicate image type and send the avatar image as a response
-  res.setHeader('Content-Type', 'image/png');
-  res.send(avatarData);
+  handleAvatar(req, res);
 });
 
 app.post("/register", (req, res) => {
@@ -193,6 +185,20 @@ app.get("/logout", (req, res) => {
 });
 app.post("/delete/:id", isAuthenticated, (req, res) => {
   // TODO: Delete a post if the current user is the owner
+  //Get the post ID from the request parameters
+  const postId = parseInt(req.params.id)
+;
+  // Find the index of the post in the posts array
+  const postIndex = posts.findIndex(post => post.id === postId);
+  // If the post exists and the current user is the owner of the post, delete it
+  if (postIndex !== -1 && posts[postIndex].username === getCurrentUser(req).username) {
+    posts.splice(postIndex, 1);
+    res.status(200).json({ message: "Post deleted successfully" });
+    console.log(posts)
+  } else {
+    // If the post doesn't exist or the current user is not the owner, send an error response
+    res.status(403).json({ error: "You are not authorized to delete this post" });
+  }
 });
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -211,35 +217,54 @@ app.listen(PORT, () => {
 let posts = [
   {
     id: 1,
-    title: "Sample Post",
-    content: "This is a sample post written by me .",
-    username: "SampleUser",
-    timestamp: "2024-01-01 10:00",
+    title: "Unlock Your Potential: Embrace the Fitness Journey!",
+    content:
+      "Hey FitFam! Today, I'm sharing my journey from couch potato to fitness enthusiast. It wasn't easy, but the results are worth it! Remember, every step forward, no matter how small, is progress. Let's conquer those fitness goals together!",
+    username: "FitFreak",
+    timestamp: "1/1/2024, 3:55:54 PM",
     likes: 0,
     likedAmount: [],
   },
   {
     id: 2,
-    title: "Another Post",
-    content: "This is another sample post.",
-    username: "AnotherUser",
-    timestamp: "2024-01-02 12:00",
+    title: "Fuel Your Fire: Tips for a Powerful Workout!",
+    content:
+      "Hey warriors! Need a boost? Try pre-workout snacks like banana with almond butter or Greek yogurt with berries for sustained energy. Keep pushing!",
+    username: "GymRat",
+    timestamp: "2/16/2024, 1:20:30 AM",
+    likes: 0,
+    likedAmount: [],
+  },
+  {
+    id: 3,
+    title: "Mind Over Matter: Cultivating Mental Resilience!",
+    content:
+      "Hello champions! Fitness isn't just about physical strength; it's about mental toughness too. When you feel like giving up, visualize your success.",
+    username: "IronMind",
+    timestamp: "4/20/2024, 4:20: PM",
     likes: 0,
     likedAmount: [],
   },
 ];
+
 let users = [
   {
     id: 1,
-    username: "SampleUser",
+    username: "FitFreak",
     avatar_url: undefined,
-    memberSince: "2024-01-01 08:00",
+    memberSince: "1/1/2024, 8:30:54 AM",
   },
   {
     id: 2,
-    username: "AnotherUser",
+    username: "GymRat",
     avatar_url: undefined,
-    memberSince: "2024-01-02 09:00",
+    memberSince: "2/12/2024, 1:20:30 AM",
+  },
+  {
+    id: 3,
+    username: "IronMind",
+    avatar_url: undefined,
+    memberSince: "4/20/2024, 2:00:00 PM",
   },
 ];
 
@@ -359,9 +384,10 @@ function logoutUser(req, res) {
 // Function to render the profile page
 function renderProfile(req, res) {
   // TODO: Fetch user posts and render the profile page
-   const currentUser = getCurrentUser(req);
+  const currentUser = getCurrentUser(req);
 
-   if (currentUser) {
+  if (currentUser) {
+
     // Fetch user posts filters post to only currentuser
     const userPosts = getPosts().filter(
       (post) => post.username === currentUser.username
@@ -373,10 +399,10 @@ function renderProfile(req, res) {
       style: "profile.css",
     });
     console.log("In profile of ", currentUser);
-   } else {
+  }else {
     // If the current user is not found, redirect to login page
     res.redirect("/login");
-   }
+  }
    
 }
 
@@ -407,6 +433,15 @@ function updatePostLikes(req, res) {
 // Function to handle avatar generation and serving
 function handleAvatar(req, res) {
   // TODO: Generate and serve the user's avatar image
+  const username = req.params.username;
+  // Get first letter and make it uppercase
+  const firstLetter = username.charAt(0).toUpperCase();
+  // Call generateAvatar with the first letter
+  const avatarData = generateAvatar(firstLetter);
+  // Set Content-Type header to indicate image type and send the avatar image as a response
+  res.setHeader("Content-Type", "image/png");
+  res.send(avatarData);
+
 }
 
 // Function to get the current user from session
@@ -423,18 +458,18 @@ function getPosts() {
 // Function to add a new post
 function addPost(title, postInfo, user) {
   // TODO: Create a new post object and add to posts array
-   let idNum = posts.length > 0 ? posts[posts.length - 1].id + 1 : 1;
-   let newPost = {
-     id: idNum,
-     title: title,
-     content: postInfo,
-     username: user.username,
-     timestamp: new Date().toLocaleString(),
-     likes: 0,
-     likedAmount: [],
-   };
-   posts.push(newPost);
-   console.log(posts)
+  let idNum = posts.length > 0 ? posts[posts.length - 1].id + 1 : 1;
+  let newPost = {
+  id: idNum,
+  title: title,
+  content: postInfo,
+  username: user.username,
+  timestamp: new Date().toLocaleString(),
+  likes: 0,
+  likedAmount: [],
+};
+  posts.push(newPost);
+  console.log(posts)
    
 }
 

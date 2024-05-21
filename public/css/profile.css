@@ -90,8 +90,13 @@ nav ul li a:hover::after {
   align-items: center;
   flex-direction: column;
 }
+.user-post{
+   margin: auto;
+  width: 50%;
+}
 .user-posts ul{
-  padding: 30px;
+  margin: 20px 250px;
+  padding: 30px 10px;
 }
 .post {
   display: flex;
