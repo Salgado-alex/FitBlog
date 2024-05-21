@@ -420,11 +420,7 @@ function generateAvatar(letter, width = 100, height = 100) {
   // TODO: Generate an avatar image with a letter
   // Steps:
   // 1. Choose a color scheme based on the letter
-<<<<<<< HEAD
-  const color = "#007bff";
-=======
   const color = '#007bff';
->>>>>>> refs/remotes/origin/master
   // 2. Create a canvas with the specified width and height
   const canvas = require('canvas').createCanvas(width, height);
   const ctx = canvas.getContext('2d');
