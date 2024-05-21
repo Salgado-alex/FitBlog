@@ -71,6 +71,7 @@ nav ul li a:hover::after {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
 }
 .profile-info{
 
@@ -116,7 +117,7 @@ nav ul li a:hover::after {
   
 }
 .profile-avatar img{
- width: 150px;
+  width: 150px;
   height: 150px;
   margin-right: 50px;
   background: #ddd;
@@ -176,4 +177,33 @@ footer {
   width: auto;
   margin-top: auto;
   text-align: center;
+}
+
+@media (max-width: 700px) {
+  body {
+    height: 100%;
+  }
+  header {
+    padding: 5px;
+    justify-content: center;
+  }
+  .logo {
+    justify-content: center;
+  }
+  .profile-avatar img{
+    margin:0;
+  }
+  .user-posts ul{
+  margin:20px
+}
+  .post-content h2 {
+    font-size: 20px;
+  }
+
+  .post-content p {
+    padding-bottom: 20px;
+  }
+  footer {
+    padding: 5px;
+  }
 }
