@@ -108,6 +108,7 @@ app.get("/register", (req, res) => {
   res.render("loginRegister", {
     regError: req.query.error,
     style: "login.css",
+    username: null,
   });
 });
 
@@ -169,10 +170,13 @@ app.get("/avatar/:username", (req, res) => {
   res.setHeader('Content-Type', 'image/png');
   res.send(avatarData);
 });
+
 app.post("/register", (req, res) => {
   // TODO: Register a new user
   // When for register button is clicked call this func
+  const username = req.body.username;
   registerUser(req, res);
+  res.render("loginRegister", { username, style: "login.css" });
 });
 
 // app.post('/register, registerUser')
