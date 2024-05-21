@@ -334,6 +334,8 @@ function loginUser(req, res) {
   // User not in the system
   else {
     console.log("no user found");
+    return res.redirect("/login?error=Username%20not%20found");
+    
   }
 }
 
@@ -420,7 +422,22 @@ function generateAvatar(letter, width = 100, height = 100) {
   // TODO: Generate an avatar image with a letter
   // Steps:
   // 1. Choose a color scheme based on the letter
-  const color = '#007bff';
+  const colors = [
+    "#0000FF",
+    "#0080ff",
+    "#8000ff",
+    "#000000",
+    "#A52A2A",
+    "#008B8B",
+    "#006400",
+  ];
+  function getRandomColor() {
+    const randomIndex = Math.floor(Math.random() * colors.length);
+    return colors[randomIndex];
+  }
+
+  // 1. Choose a random color
+  const color = getRandomColor();
   // 2. Create a canvas with the specified width and height
   const canvas = require('canvas').createCanvas(width, height);
   const ctx = canvas.getContext('2d');
