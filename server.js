@@ -11,18 +11,16 @@ const sqlite3 = require("sqlite3");
 // Import and configure dotenv to load environment variables from the .env file
 require("dotenv").config();
 
-
 const crypto = require("crypto");
-// Import and configure dotenv to load environment variables from the .env file 
-
+// Import and configure dotenv to load environment variables from the .env file
 
 // Replace hardcoded client ID and secret values with references to the environment variables.
 const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const dotenv = require('dotenv');
+const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const dotenv = require("dotenv");
 // Load environment variables from .env file
 dotenv.config();
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -393,6 +391,7 @@ app.get("/logout", async (req, res) => {
 app.get("/googleLogout", (req, res) => {
   res.render("googleLogout", {
     message: "You have been successfully logged out.",
+    style: "styles.css",
   });
 });
 
@@ -837,26 +836,26 @@ async function getPosts() {
   }
 }
 
-async function getPostById(postId) {
-  try {
-    // Open the database connection
-    const db = await sqlite.open({
-      filename: dbFileName,
-      driver: sqlite3.Database,
-    });
-    console.log("Connected to the SQLite database.");
-    // Query the database to retrieve the post with the specified ID
-    const post = await db.get("SELECT * FROM posts WHERE id = ?", [postId]);
-    // Close the database connection
-    await db.close();
-    // Return the retrieved post
-    return post;
-  } catch (error) {
-    // Handle any errors that occur during the database operation
-    console.error("Error retrieving post by ID:", error);
-    return null;
-  }
-}
+// async function getPostById(postId) {
+//   try {
+//     // Open the database connection
+//     const db = await sqlite.open({
+//       filename: dbFileName,
+//       driver: sqlite3.Database,
+//     });
+//     console.log("Connected to the SQLite database.");
+//     // Query the database to retrieve the post with the specified ID
+//     const post = await db.get("SELECT * FROM posts WHERE id = ?", [postId]);
+//     // Close the database connection
+//     await db.close();
+//     // Return the retrieved post
+//     return post;
+//   } catch (error) {
+//     // Handle any errors that occur during the database operation
+//     console.error("Error retrieving post by ID:", error);
+//     return null;
+//   }
+// }
 
 // Function to add a new post
 async function addPost(title, content, username) {
@@ -1014,4 +1013,3 @@ function generateAvatar(letter, width = 100, height = 100) {
   // 5. Return the avatar as a PNG buffer
   return canvas.toBuffer();
 }
-
