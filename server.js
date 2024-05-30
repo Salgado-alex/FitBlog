@@ -11,18 +11,18 @@ const sqlite3 = require("sqlite3");
 // Import and configure dotenv to load environment variables from the .env file
 require("dotenv").config();
 
-const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 const crypto = require("crypto");
+// Import and configure dotenv to load environment variables from the .env file 
+
 
 // Replace hardcoded client ID and secret values with references to the environment variables.
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const clientId = process.env.CLIENT_ID;
+const clientSecret = process.env.CLIENT_SECRET;
 
-const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const dotenv = require("dotenv");
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const dotenv = require('dotenv');
 // Load environment variables from .env file
 dotenv.config();
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1014,3 +1014,4 @@ function generateAvatar(letter, width = 100, height = 100) {
   // 5. Return the avatar as a PNG buffer
   return canvas.toBuffer();
 }
+
