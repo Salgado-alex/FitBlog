@@ -183,6 +183,10 @@ app.use((req, res, next) => {
   res.locals.postNeoType = "Post";
   res.locals.loggedIn = req.session.loggedIn || false;
   res.locals.userId = req.session.userId || "";
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; script-src 'self'; frame-src 'self' https://accounts.google.com;"
+  );
   next();
 });
 
@@ -222,11 +226,6 @@ app.get(
   passport.authenticate("google", { scope: ["profile"] })
 );
 
-// // Function to hash some data
-// function hashData(data) {
-//   return crypto.createHash("sha256").update(data).digest("hex");
-// }
-
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
@@ -239,14 +238,18 @@ app.get(
         .createHash("sha256")
         .update(googleId)
         .digest("hex");
+      req.session.hashedGoogleId = hashedGoogleId;
       let localUser = await findUserByHashedGoogleId(hashedGoogleId);
       if (localUser) {
         req.session.userId = localUser.id;
         req.session.loggedIn = true;
         res.redirect("/");
       } else {
-        req.session.hashedGoogleId = hashedGoogleId;
-        res.redirect("/registerUser");
+        if (!req.session.Id) {
+          res.redirect("/registerUser");
+        } else {
+          res.redirect("/");
+        }
       }
     } catch (err) {
       console.error("Error finding user:", err);
@@ -257,7 +260,6 @@ app.get(
 
 // Home route: render home view with posts and user
 // We pass the posts and user variables into the home
-// template
 app.get("/", async (req, res) => {
   try {
     // Get all posts
@@ -675,7 +677,9 @@ async function loginUser(req, res) {
 async function logoutUser(req, res) {
   try {
     await req.session.destroy();
-    res.redirect("/googleLogout");
+    await res.redirect("/googleLogout");
+    // res.sendFile(__dirname + "/views/logout.html");
+    // // res.sendFile(path.join(__dirname, "public", "logout.html"));
   } catch (err) {
     console.error("Error destroying session: ", err);
     res.redirect("/error");
