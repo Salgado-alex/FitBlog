@@ -181,17 +181,10 @@ app.use(express.json()); // Parse JSON bodies (as sent by API clients)
 // Home route: render home view with posts and user
 // We pass the posts and user variables into the home
 // template
-<<<<<<< HEAD
-//
-
-app.get("/", (req, res) => {
-  const posts = getPosts();
-=======
 app.get("/", async (req, res) => {
 try {
   // Get all posts
   const posts =  await getPosts();
->>>>>>> 64b286b10e04b644f91e2e86a78b08551063141c
   const user = getCurrentUser(req) || {};
   // Render them
   res.render("home", { posts, user, style: "styles.css" });
@@ -201,7 +194,6 @@ try {
   res.render("error");
 }
 });
-<<<<<<< HEAD
 //redirect OAuth 2.0 server response
 app.get("/auth/google", (req, res) => {
   passport.authenticate("google", { scope: [ "profile"] });
@@ -221,8 +213,6 @@ app.get(
     }
   }
 );
-=======
->>>>>>> 64b286b10e04b644f91e2e86a78b08551063141c
 // Register GET route is used for error response from registration
 app.get("/register", (req, res) => {
   res.render("loginRegister", {
@@ -243,12 +233,8 @@ app.get("/error", (req, res) => {
   res.render("error");
 });
 // Additional routes that you must implement
-<<<<<<< HEAD
-/**
-app.get("/post/:id", (req, res) => {
-=======
+
 app.get("/post/:id", async(req, res) => {
->>>>>>> 64b286b10e04b644f91e2e86a78b08551063141c
   // TODO: Render post detail page
   try {
   const postId = req.params.id;
@@ -259,17 +245,6 @@ app.get("/post/:id", async(req, res) => {
   } else {
     console.log("no post");
   }
-<<<<<<< HEAD
-});
- */
-app.post("/posts", (req, res) => {
-  // TODO: Add a new post and redirect to home
-  const { title, postInfo } = req.body;
-  const userId = req.session.userId;
-  const user = findUserById(userId);
-  if (!userId || !user) {
-    return res.redirect("/login");
-=======
   } catch (error) {
     console.error('Error getting current user:', error);
     return null;
@@ -291,7 +266,6 @@ app.post("/posts", async (req, res) => {
     res.redirect("/");
   } catch (error) {
     console.error('Error handling post request:', error);
->>>>>>> 64b286b10e04b644f91e2e86a78b08551063141c
   }
 });
 app.post("/like/:id", isAuthenticated, (req, res) => {
@@ -321,26 +295,6 @@ app.get("/logout", (req, res) => {
   // TODO: Logout the user
   logoutUser(req, res);
 });
-<<<<<<< HEAD
-app.post("/delete/:id", isAuthenticated, (req, res) => {
-  // TODO: Delete a post if the current user is the owner
-  //Get the post ID from the request parameters
-  const postId = parseInt(req.params.id);
-  // Find the index of the post in the posts array
-  const postIndex = posts.findIndex((post) => post.id === postId);
-  // If the post exists and the current user is the owner of the post, delete it
-  if (
-    postIndex !== -1 &&
-    posts[postIndex].username === getCurrentUser(req).username
-  ) {
-    posts.splice(postIndex, 1);
-    res.status(200).json({ message: "Post deleted successfully" });
-  } else {
-    // If the post doesn't exist or the current user is not the owner, send an error response
-    res
-      .status(403)
-      .json({ error: "You are not authorized to delete this post" });
-=======
 app.post("/delete/:id", isAuthenticated, async (req, res) => {
   try {
     // Get the post ID from the request parameters
@@ -363,7 +317,6 @@ app.post("/delete/:id", isAuthenticated, async (req, res) => {
     // Handle errors
     console.error('Error deleting post:', error);
     res.status(500).json({ error: 'Internal server error' });
->>>>>>> 64b286b10e04b644f91e2e86a78b08551063141c
   }
 });
 
@@ -525,32 +478,6 @@ async function registerUser(req, res) {
   }
 }
 
-<<<<<<< HEAD
-// Function to login a user
-function loginUser(req, res) {
-  // TODO: Login a user and redirect appropriately
-  // Get the user name that was typed by req.body
-  const username = req.body.username;
-  const existingUser = findUserByUsername(username);
-  // Check for existing username
-  // const userid = req.session.userId
-  // const existingUser = findUserByUsername(userid)
-  // If found log in
-  if (existingUser) {
-    // indcates the user is logged in
-    req.session.loggedIn = true;
-    // sets userID
-    req.session.userId = existingUser.id;
-    console.log(existingUser.id);
-    // redirects to the main page
-    res.redirect("/");
-    console.log("logging in");
-  }
-  // User not in the system
-  else {
-    console.log("no user found");
-    return res.redirect("/login?error=Username%20not%20found");
-=======
 async function loginUser(req, res) {
   try {
     // Get user name being inputed
@@ -583,7 +510,6 @@ async function loginUser(req, res) {
     // Handle any errors
     console.error("Error logging in:", error);
     res.redirect("/error");
->>>>>>> 64b286b10e04b644f91e2e86a78b08551063141c
   }
 }
 
@@ -602,17 +528,6 @@ function logoutUser(req, res) {
 }
 
 // Function to render the profile page
-<<<<<<< HEAD
-function renderProfile(req, res) {
-  // TODO: Fetch user posts and render the profile page
-  const currentUser = getCurrentUser(req);
-
-  if (currentUser) {
-    // Fetch user posts filters post to only currentuser
-    const userPosts = getPosts().filter(
-      (post) => post.username === currentUser.username
-    );
-=======
 // Function to render the profile page
 async function renderProfile(req, res) {
   try {
@@ -623,52 +538,19 @@ async function renderProfile(req, res) {
     // Filter posts 
     const userPosts = allPosts.filter(post => post.username === currentUser.username);
     // Render the profile page with user information and posts
->>>>>>> 64b286b10e04b644f91e2e86a78b08551063141c
     res.render("profile", {
       user: currentUser,
       posts: userPosts,
       style: "profile.css",
     });
     console.log("In profile of ", currentUser);
-<<<<<<< HEAD
-  } else {
-    // If the current user is not found, redirect to login page
-    res.redirect("/login");
-=======
   } catch (error) {
     console.error('Error rendering profile page:', error);
     res.redirect("/error");
->>>>>>> 64b286b10e04b644f91e2e86a78b08551063141c
   }
 }
 
 // Function to update post likes
-<<<<<<< HEAD
-function updatePostLikes(req, res) {
-  // TODO: Increment post likes if conditions are met
-  // Get id beening passed in
-  const postId = req.params.id;
-  // Get current userid
-  const userId = req.session.userId;
-  // Find the post
-  const post = posts.find((post) => post.id === parseInt(postId));
-  console.log("postId");
-  console.log(post);
-  // If doesnt equal post
-  if (!post) {
-    return res.status(404).json({ error: "Post not found" });
-  }
-  // Dont allow to like the same post
-  if (post.likedAmount.includes(userId)) {
-    return res.status(403).json({ error: "You already liked this post" });
-  }
-  // Increment likes
-  post.likes++;
-  post.likedAmount.push(userId);
-  res
-    .status(200)
-    .json({ message: "Post liked successfully", likes: post.likes });
-=======
 async function updatePostLikes(req, res) {
   try {
     // Open connection to database
@@ -717,7 +599,6 @@ async function updatePostLikes(req, res) {
     console.error('Error updating post likes:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
->>>>>>> 64b286b10e04b644f91e2e86a78b08551063141c
 }
 
 // Function to handle avatar generation and serving
@@ -794,22 +675,6 @@ async function getPostById(postId) {
 }
 
 // Function to add a new post
-<<<<<<< HEAD
-function addPost(title, postInfo, user) {
-  // TODO: Create a new post object and add to posts array
-  let idNum = posts.length > 0 ? posts[posts.length - 1].id + 1 : 1;
-  let newPost = {
-    id: idNum,
-    title: title,
-    content: postInfo,
-    username: user.username,
-    timestamp: new Date().toLocaleString(),
-    likes: 0,
-    likedAmount: [],
-  };
-  posts.push(newPost);
-  console.log(posts);
-=======
 async function addPost(title, content, username) {
   // data that is always inserted into post
   const timestamp = new Date().toISOString();
@@ -862,7 +727,6 @@ async function deletePostById(postId, currentUser) {
     console.error('Error deleting post:', error);
     return { error: 'Failed to delete post' };
   }
->>>>>>> 64b286b10e04b644f91e2e86a78b08551063141c
 }
 
 // Function to generate an image avatar
