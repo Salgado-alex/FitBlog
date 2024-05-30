@@ -1,0 +1,21 @@
+{{!< main }}
+
+<section class="login-register">
+  <section class="register-area">
+    <div>
+      <h2>Register Username</h2>
+      <!-- Display the registration success message -->
+      {{#if username}}
+        <p style="color: rgb(0, 42, 255);">{{username}} is now registered 💪</p>
+      {{/if}}
+      <!-- errors will appear here -->
+      {{#if regError}}
+        <p style="color: red;">{{regError}}</p>
+      {{/if}}
+      <form action="/registerUser" method="POST">
+        <input type="text" name="username" id="username" placeholder="Username" />
+        <button type="submit" id="regBtn">Register</button>
+      </form>
+    </div>
+  </section>
+</section>

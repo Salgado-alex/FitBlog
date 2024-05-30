@@ -35,6 +35,15 @@
     <section class="posts-list">
         <!-- recent posts -->
         <h1 class="home-title">Recent Post</h1>
+        <!-- Dropdown Menu for Category Selection -->
+  <form action="/posts" method="get" id="filterForm">
+    <label for="category">Filter:</label>
+    <select name="category" id="category" onchange="document.getElementById('filterForm').submit()">
+      <option value="all">All</option>
+      <option value="mostlikes">Most likes</option>
+      <option value="Oldest">Oldest</option>
+    </select>
+  </form>
         {{#if posts.length}}
         <ul>
             {{#each posts}}

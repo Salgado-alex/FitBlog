@@ -1,0 +1,35 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Logout Confirmation</title>
+    <style>
+      html, body { margin: 0; padding: 0; height: 100%; background-image:
+      linear-gradient(to bottom, #748d92, #d3d9d4); font-family: sans-serif,
+      "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS"; } body { display:
+      flex; flex-direction: column; } /*--------------Header---------------*/
+      header { color: #363636; display: flex; flex-wrap: wrap; justify-content:
+      space-between; width: auto; align-items: center; } .logo { display: flex;
+      align-items: center; flex-wrap: wrap; } .logo img { width: 120px; height:
+      auto; } .logo h1 { margin: 0; } nav ul{ list-style-type: none; padding: 0;
+      padding-right: 10px; display: flex; justify-content: center; align-items:
+      center; flex-wrap: wrap; } nav ul li { margin: 15px; } nav ul
+      li:last-child { margin-right: 0; } nav ul li a { color: #363636;
+      text-decoration: none; font-weight: bold; font-size: 20px; } nav ul li
+      a::after { content: ""; width: 0; height: 2px; display: block; margin-top:
+      3px; right: 0; background: #2763a3; transition: width 0.3s ease; } nav ul
+      li a:hover::after { width: 100%; }
+    </style>
+    <script>
+      window.onload = function () { const iframe =
+      document.createElement("iframe"); 
+      iframe.style.display = "none";
+      iframe.src = "https://accounts.google.com/logout"; 
+      iframe.onload = function () { window.location.href = "/logoutCallback"; };
+      document.body.appendChild(iframe); };
+    </script>
+  </head>
+  <body>
+    <h1>{{message}}</h1>
+  </body>
+</html>
