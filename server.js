@@ -3,6 +3,13 @@ const express = require("express");
 const expressHandlebars = require("express-handlebars");
 const session = require("express-session");
 const canvas = require("canvas");
+const passport = require("passport");
+require('./passport');
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const dotenv = require("dotenv");
+
+// Load environment variables from .env file
+dotenv.config();
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Configuration and Setup
@@ -72,7 +79,8 @@ app.use(
     cookie: { secure: false }, // True if using https. Set to false for development without https
   })
 );
-
+app.use(passport.initialize());
+app.use(passport.session());
 // Replace any of these variables below with constants for your application. These variables
 // should be used in your template files.
 //
@@ -96,12 +104,31 @@ app.use(express.json()); // Parse JSON bodies (as sent by API clients)
 // We pass the posts and user variables into the home
 // template
 //
+
 app.get("/", (req, res) => {
   const posts = getPosts();
   const user = getCurrentUser(req) || {};
   res.render("home", { posts, user, style: "styles.css" });
 });
-
+//redirect OAuth 2.0 server response
+app.get("/auth/google", (req, res) => {
+  passport.authenticate("google", { scope: [ "profile"] });
+});
+app.get(
+  "/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  (req, res) => {
+    if (user) {
+      req.session.userId = user.id;
+      req.session.username = user.username;
+      
+      console.log(user);
+      res.redirect("/");
+    } else {
+      res.redirect("/registerUsername");
+    }
+  }
+);
 // Register GET route is used for error response from registration
 //
 app.get("/register", (req, res) => {
@@ -128,7 +155,7 @@ app.get("/error", (req, res) => {
 });
 
 // Additional routes that you must implement
-
+/**
 app.get("/post/:id", (req, res) => {
   // TODO: Render post detail page
   const postId = req.session.id;
@@ -137,9 +164,10 @@ app.get("/post/:id", (req, res) => {
   if (post) {
     res.render("postDetail", { post, style: "styles.css" });
   } else {
-    console.log("no post")
+    console.log("no post");
   }
 });
+ */
 app.post("/posts", (req, res) => {
   // TODO: Add a new post and redirect to home
   const { title, postInfo } = req.body;
@@ -157,7 +185,7 @@ app.post("/like/:id", isAuthenticated, (req, res) => {
 });
 app.get("/profile", isAuthenticated, (req, res) => {
   // TODO: Render profile page
-  renderProfile(req,res);
+  renderProfile(req, res);
 });
 app.get("/avatar/:username", (req, res) => {
   // TODO: Serve the avatar image for the user
@@ -186,18 +214,21 @@ app.get("/logout", (req, res) => {
 app.post("/delete/:id", isAuthenticated, (req, res) => {
   // TODO: Delete a post if the current user is the owner
   //Get the post ID from the request parameters
-  const postId = parseInt(req.params.id)
-;
+  const postId = parseInt(req.params.id);
   // Find the index of the post in the posts array
-  const postIndex = posts.findIndex(post => post.id === postId);
+  const postIndex = posts.findIndex((post) => post.id === postId);
   // If the post exists and the current user is the owner of the post, delete it
-  if (postIndex !== -1 && posts[postIndex].username === getCurrentUser(req).username) {
+  if (
+    postIndex !== -1 &&
+    posts[postIndex].username === getCurrentUser(req).username
+  ) {
     posts.splice(postIndex, 1);
     res.status(200).json({ message: "Post deleted successfully" });
-    console.log(posts)
   } else {
     // If the post doesn't exist or the current user is not the owner, send an error response
-    res.status(403).json({ error: "You are not authorized to delete this post" });
+    res
+      .status(403)
+      .json({ error: "You are not authorized to delete this post" });
   }
 });
 
@@ -214,6 +245,7 @@ app.listen(PORT, () => {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // Example data for posts and users
+
 let posts = [
   {
     id: 1,
@@ -363,7 +395,6 @@ function loginUser(req, res) {
   else {
     console.log("no user found");
     return res.redirect("/login?error=Username%20not%20found");
-    
   }
 }
 
@@ -387,23 +418,20 @@ function renderProfile(req, res) {
   const currentUser = getCurrentUser(req);
 
   if (currentUser) {
-
     // Fetch user posts filters post to only currentuser
     const userPosts = getPosts().filter(
       (post) => post.username === currentUser.username
     );
-    // Render the profile page with user information and posts
     res.render("profile", {
       user: currentUser,
       posts: userPosts,
       style: "profile.css",
     });
     console.log("In profile of ", currentUser);
-  }else {
+  } else {
     // If the current user is not found, redirect to login page
     res.redirect("/login");
   }
-   
 }
 
 // Function to update post likes
@@ -413,22 +441,24 @@ function updatePostLikes(req, res) {
   const postId = req.params.id;
   // Get current userid
   const userId = req.session.userId;
-  // Find the post 
-  const post = posts.find(post => post.id === parseInt(postId));
-  console.log("postId")
-  console.log(post)
-  // If doesnt equal post 
+  // Find the post
+  const post = posts.find((post) => post.id === parseInt(postId));
+  console.log("postId");
+  console.log(post);
+  // If doesnt equal post
   if (!post) {
-      return res.status(404).json({ error: "Post not found" });
+    return res.status(404).json({ error: "Post not found" });
   }
   // Dont allow to like the same post
   if (post.likedAmount.includes(userId)) {
-    return res.status(403).json({ error: 'You already liked this post' });
+    return res.status(403).json({ error: "You already liked this post" });
   }
   // Increment likes
   post.likes++;
   post.likedAmount.push(userId);
-  res.status(200).json({ message: 'Post liked successfully', likes: post.likes });
+  res
+    .status(200)
+    .json({ message: "Post liked successfully", likes: post.likes });
 }
 // Function to handle avatar generation and serving
 function handleAvatar(req, res) {
@@ -441,7 +471,6 @@ function handleAvatar(req, res) {
   // Set Content-Type header to indicate image type and send the avatar image as a response
   res.setHeader("Content-Type", "image/png");
   res.send(avatarData);
-
 }
 
 // Function to get the current user from session
@@ -460,17 +489,16 @@ function addPost(title, postInfo, user) {
   // TODO: Create a new post object and add to posts array
   let idNum = posts.length > 0 ? posts[posts.length - 1].id + 1 : 1;
   let newPost = {
-  id: idNum,
-  title: title,
-  content: postInfo,
-  username: user.username,
-  timestamp: new Date().toLocaleString(),
-  likes: 0,
-  likedAmount: [],
-};
+    id: idNum,
+    title: title,
+    content: postInfo,
+    username: user.username,
+    timestamp: new Date().toLocaleString(),
+    likes: 0,
+    likedAmount: [],
+  };
   posts.push(newPost);
-  console.log(posts)
-   
+  console.log(posts);
 }
 
 // Function to generate an image avatar
@@ -478,18 +506,18 @@ function generateAvatar(letter, width = 100, height = 100) {
   // TODO: Generate an avatar image with a letter
   // Steps:
   // 1. Choose a color scheme based on the letter
-  const color =  "#008B8B";
+  const color = "#008B8B";
   // 2. Create a canvas with the specified width and height
-  const canvas = require('canvas').createCanvas(width, height);
-  const ctx = canvas.getContext('2d');
+  const canvas = require("canvas").createCanvas(width, height);
+  const ctx = canvas.getContext("2d");
   // 3. Draw the background color
   ctx.fillStyle = color;
   ctx.fillRect(0, 0, width, height);
   // 4. Draw the letter in the center
-  ctx.fillStyle = '#fff'; 
-  ctx.font = `${height * 0.6}px Arial`; 
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
+  ctx.fillStyle = "#fff";
+  ctx.font = `${height * 0.6}px Arial`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
   ctx.fillText(letter, width / 2, height / 2);
   // 5. Return the avatar as a PNG buffer
   return canvas.toBuffer();

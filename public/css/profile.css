@@ -35,22 +35,25 @@ header {
 .logo h1 {
   margin: 0;
 }
-
-nav ul {
+nav ul{
   list-style-type: none;
+  padding: 0;
   display: flex;
+  justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
 }
-
 nav ul li {
-  padding-right: 25px;
+  margin: 15px; 
 }
-
+nav ul li:last-child {
+  margin-right: 0; 
+}
 nav ul li a {
   color: #363636;
   text-decoration: none;
   font-weight: bold;
-  font-size: 17px;
+  font-size: 20px;
 }
 nav ul li a::after {
   content: "";
@@ -66,82 +69,98 @@ nav ul li a::after {
 nav ul li a:hover::after {
   width: 100%;
 }
+.header-avatar {
+  width: 50px;
+  height: 50px;
+  background: #ddd;
+  border-radius: 10px;
+  margin: 0 10px;
+}
+
 /*-------------Body----------------------*/
-.profile-container{
+.profile-container {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
 }
-.profile-info{
-
+.profile-info {
   margin: 20px;
-  padding: 20px ;
+  padding: 30px;
+  justify-content: center;
   background: #d2cbb8;
-  border-radius: 8px;
+  border-radius: 20px;
   box-shadow: 0 0 10px rgb(0, 0, 0);
 }
-.profile-info h1{
-  margin: 0;
+.profile-info h1 {
+  margin: 10px;
+  text-align: center;
 }
+.joined-profile {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding-top: 10px;
+}
+
+.profile-avatar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.profile-avatar img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+}
+
+/*-----------Post------------------*/
 .user-posts {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  width: 100%;
+  flex-wrap: wrap;
+  
 }
-.user-post{
-   margin: auto;
-  width: 50%;
-}
+
 .user-posts ul{
-  margin: 20px 250px;
-  padding: 30px 10px;
+  padding: 0;
 }
+
 .post {
   display: flex;
   margin: 20px;
-  padding: 30px ;
+  padding: 20px ;
   background: #d2cbb8;
-  border-radius: 8px;
+  border-radius: 20px;
   box-shadow: 0 0 10px rgb(0, 0, 0);
 }
-
+.post-content{
+  width:90%;
+}
 .post-content h2 {
-  margin: 0 0 10px;
-  font-size: 25px;
+  margin: auto;
+  font-size: 20px;
   color: #000000;
-
 }
-.header-avatar {
-  width: 50px;
-  height: 50px;
-  margin-right: 15px;
-  background: #ddd;
-  border-radius: 10px;
-  
+.post-avatar img{
+  border-radius: 100%;
 }
-.profile-avatar img{
-  width: 150px;
-  height: 150px;
-  margin-right: 50px;
-  background: #ddd;
-  border-radius: 10px;
-}
-
 .post-content p{
-  margin: 5px 0;
+  margin: auto;
   color: #000000;
+  margin-top: 7px;
   padding-bottom: 40px;
-
 }
 .post-status-bar {
   display: flex;
   align-items: center;
   padding: 8px 0 5px 0;
-  border-top: 1.5px solid #606060; 
+  border-top: 1.5px solid #606060;
 }
-#user-info-post{
+#user-info-post {
   font-size: 13px;
   justify-content: center;
   margin: 0;
@@ -162,19 +181,18 @@ nav ul li a:hover::after {
   font-size: 15px;
 }
 
-.like-button,.delete-button {
-  
+.like-button,
+.delete-button {
   background-color: transparent;
 }
 
-.fa-heart:hover{
+.fa-heart:hover {
   color: red;
 }
 
 .fa-trash-alt:hover {
   color: rgb(244, 87, 87);
 }
-
 
 /*-------------Footer----------------------*/
 footer {
@@ -195,19 +213,7 @@ footer {
   .logo {
     justify-content: center;
   }
-  .profile-avatar img{
-    margin:0;
-  }
-  .user-posts ul{
-  margin:20px
-}
-  .post-content h2 {
-    font-size: 20px;
-  }
-
-  .post-content p {
-    padding-bottom: 20px;
-  }
+  
   footer {
     padding: 5px;
   }

@@ -35,22 +35,26 @@ header {
 .logo h1 {
   margin: 0;
 }
-
-nav ul {
+nav ul{
   list-style-type: none;
+  padding: 0;
+  padding-right: 10px;
   display: flex;
+  justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
 }
-
 nav ul li {
-  padding-right: 25px;
+  margin: 15px; 
 }
-
+nav ul li:last-child {
+  margin-right: 0; 
+}
 nav ul li a {
   color: #363636;
   text-decoration: none;
   font-weight: bold;
-  font-size: 17px;
+  font-size: 20px;
 }
 nav ul li a::after {
   content: "";
@@ -66,7 +70,6 @@ nav ul li a::after {
 nav ul li a:hover::after {
   width: 100%;
 }
-
 /*--------------Body------------*/
 .login-register {
   display: flex;
@@ -128,7 +131,15 @@ section button {
 section button:hover {
   background-color: #3d9bff;
 }
-
+form a {
+  display: inline-block;
+  background-color: #4285F4;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+}
 /*-------------Footer----------------------*/
 footer {
   color: #363636;

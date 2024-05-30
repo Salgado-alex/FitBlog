@@ -2,16 +2,15 @@
 {{!< main }}
 
 <div class="profile-container">
-    <div class="profile-avatar">
-        <!-- Correct path for the default avatar image -->
-          <img src="/avatar/{{user.username}}" alt="Avatar">
-    </div>
-    
     <section class="profile-info">
+        <div class="profile-avatar">
+        <!-- Correct path for the default avatar image -->
+          <img src="/avatar/{{user.username}}" alt="Avatar" >
+        </div>
         <!-- user profile info -->
-        <h1>User Profile</h1>
-        <p>Username: {{user.username}}</p>
-        <p>Member since: {{user.memberSince}} </p>
+        <h1>@{{user.username}}</h1>
+        
+        <p class="joined-profile"><span class="material-symbols-outlined">calendar_month</span>Joined: {{user.memberSince}} </p>
 
     </section>
 </div>

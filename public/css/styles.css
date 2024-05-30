@@ -35,22 +35,26 @@ header {
 .logo h1 {
   margin: 0;
 }
-
-nav ul {
+nav ul{
   list-style-type: none;
+  padding: 0;
+  padding-right: 10px;
   display: flex;
+  justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
 }
-
 nav ul li {
-  padding-right: 25px;
+  margin: 15px; 
 }
-
+nav ul li:last-child {
+  margin-right: 0; 
+}
 nav ul li a {
   color: #363636;
   text-decoration: none;
   font-weight: bold;
-  font-size: 17px;
+  font-size: 20px;
 }
 nav ul li a::after {
   content: "";
@@ -66,10 +70,19 @@ nav ul li a::after {
 nav ul li a:hover::after {
   width: 100%;
 }
+.header-avatar {
+  width: 50px;
+  height: 50px;
+  background: #ddd;
+  border-radius: 10px;
+  margin: 0 10px;
+}
+
 /*------------body-------------*/
 .content-container {
   display: flex;
   height: auto;
+  justify-content: center;
   padding: 0 20px 0 40px;
   margin: 0 20px;
   flex-wrap: wrap;
@@ -129,7 +142,7 @@ textarea {
 }
 .post-button {
   color: white;
-  margin-left: 15px;
+  margin-left: 10px;
 }
 .post-button:hover {
   background-color: #3d9bff;
@@ -138,38 +151,42 @@ textarea {
 /*----------Recent Post------------------*/
 
 .posts-list {
-  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
   width: 50%;
+  flex-wrap: wrap;
+  
 }
 .posts-list ul{
-  padding: 30px 10px;
+  padding: 0;
+  margin:20px;
 }
 .post {
   display: flex;
   margin: 20px;
-  padding: 20px 30px 20px 30px ;
+  padding: 20px;
   background: #d2cbb8;
-  border-radius: 8px;
+  border-radius: 20px;
   box-shadow: 0 0 10px rgb(0, 0, 0);
-
 }
-
+.post-content{
+  width:90%
+}
 .post-content h2 {
-  margin: 0 0 10px;
+  margin: auto;
   font-size: 20px;
   color: #000000;
 }
-.header-avatar {
-  width: 50px;
-  height: 50px;
-  margin-right: 15px;
-  background: #ddd;
-  border-radius: 10px;
+.post-avatar img{
+  border-radius: 100%;
 }
 
 .post-content p{
   margin: 5px 0;
   color: #000000;
+  margin-top: 7px;
   padding-bottom: 40px;
 
 }
@@ -224,7 +241,7 @@ footer {
   
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1000px) {
   body {
     height: 100%;
   }
@@ -240,37 +257,11 @@ footer {
   }
   .posts-list {
   width: auto;
-  margin:90px;
+  margin:auto;
   
 }
-  .posts-list ul{
-    padding: 10px;
-  }
-  .post {
-    padding: 20px 20px;
-    font-size: 15px;
-  }
-  .post-content h2 {
-    font-size: 19px;
-  }
-  .post-form{
-    width:80%;
-  }
-  .post-content p {
-    padding-bottom: 20px;
-  }
+  
   footer {
     padding: 5px;
   }
-}
-@media (max-width: 600px) {
-  .post {
-
-    padding: 20px 20px;
-    font-size: 12px;
-  }
-  .post-content h2 {
-    font-size: 15px;
-  }
-
 }
