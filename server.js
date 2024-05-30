@@ -3,13 +3,6 @@ const express = require("express");
 const expressHandlebars = require("express-handlebars");
 const session = require("express-session");
 const canvas = require("canvas");
-const passport = require("passport");
-require('./passport');
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const dotenv = require("dotenv");
-
-// Load environment variables from .env file
-dotenv.config();
 
 // Import sqlite modules
 const sqlite = require("sqlite");
@@ -158,8 +151,7 @@ app.use(
     cookie: { secure: false }, // True if using https. Set to false for development without https
   })
 );
-app.use(passport.initialize());
-app.use(passport.session());
+
 // Replace any of these variables below with constants for your application. These variables
 // should be used in your template files.
 app.use((req, res, next) => {
@@ -185,7 +177,7 @@ app.get("/", async (req, res) => {
 try {
   // Get all posts
   const posts =  await getPosts();
-  const user = getCurrentUser(req) || {};
+  const user = await getCurrentUser(req) || {};
   // Render them
   res.render("home", { posts, user, style: "styles.css" });
 } catch (error) {
@@ -194,25 +186,6 @@ try {
   res.render("error");
 }
 });
-//redirect OAuth 2.0 server response
-app.get("/auth/google", (req, res) => {
-  passport.authenticate("google", { scope: [ "profile"] });
-});
-app.get(
-  "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),
-  (req, res) => {
-    if (user) {
-      req.session.userId = user.id;
-      req.session.username = user.username;
-      
-      console.log(user);
-      res.redirect("/");
-    } else {
-      res.redirect("/registerUsername");
-    }
-  }
-);
 // Register GET route is used for error response from registration
 app.get("/register", (req, res) => {
   res.render("loginRegister", {
@@ -231,24 +204,6 @@ app.get("/login", (req, res) => {
 // Error route: render error page
 app.get("/error", (req, res) => {
   res.render("error");
-});
-// Additional routes that you must implement
-
-app.get("/post/:id", async(req, res) => {
-  // TODO: Render post detail page
-  try {
-  const postId = req.params.id;
-  const post = await getPostById(postId);
-
-  if (post) {
-    res.render("postDetail", { post, style: "styles.css" });
-  } else {
-    console.log("no post");
-  }
-  } catch (error) {
-    console.error('Error getting current user:', error);
-    return null;
-  }
 });
 app.post("/posts", async (req, res) => {
   try {
@@ -274,7 +229,7 @@ app.post("/like/:id", isAuthenticated, (req, res) => {
 });
 app.get("/profile", isAuthenticated, (req, res) => {
   // TODO: Render profile page
-  renderProfile(req, res);
+  renderProfile(req,res);
 });
 app.get("/avatar/:username", (req, res) => {
   // TODO: Serve the avatar image for the user
@@ -320,7 +275,6 @@ app.post("/delete/:id", isAuthenticated, async (req, res) => {
   }
 });
 
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Server Activation
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -334,7 +288,6 @@ app.listen(PORT, () => {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // Example data for posts and users
-
 let posts = [
   {
     title: "Unlock Your Potential: Embrace the Fitness Journey!",
@@ -601,7 +554,7 @@ async function updatePostLikes(req, res) {
   }
 }
 
-// Function to handle avatar generation and serving
+
 function handleAvatar(req, res) {
   // TODO: Generate and serve the user's avatar image
   const username = req.params.username;
@@ -613,6 +566,7 @@ function handleAvatar(req, res) {
   res.setHeader("Content-Type", "image/png");
   res.send(avatarData);
 }
+
 
 // Function to get the current user from session
 async function getCurrentUser(req) {
@@ -734,18 +688,18 @@ function generateAvatar(letter, width = 100, height = 100) {
   // TODO: Generate an avatar image with a letter
   // Steps:
   // 1. Choose a color scheme based on the letter
-  const color = "#008B8B";
+  const color =  "#008B8B";
   // 2. Create a canvas with the specified width and height
-  const canvas = require("canvas").createCanvas(width, height);
-  const ctx = canvas.getContext("2d");
+  const canvas = require('canvas').createCanvas(width, height);
+  const ctx = canvas.getContext('2d');
   // 3. Draw the background color
   ctx.fillStyle = color;
   ctx.fillRect(0, 0, width, height);
   // 4. Draw the letter in the center
-  ctx.fillStyle = "#fff";
-  ctx.font = `${height * 0.6}px Arial`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
+  ctx.fillStyle = '#fff'; 
+  ctx.font = `${height * 0.6}px Arial`; 
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
   ctx.fillText(letter, width / 2, height / 2);
   // 5. Return the avatar as a PNG buffer
   return canvas.toBuffer();
