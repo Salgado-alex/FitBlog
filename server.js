@@ -186,10 +186,6 @@ app.use((req, res, next) => {
   res.locals.postNeoType = "Post";
   res.locals.loggedIn = req.session.loggedIn || false;
   res.locals.userId = req.session.userId || "";
-  res.setHeader(
-    "Content-Security-Policy",
-    "default-src 'self'; script-src 'self'; frame-src 'self' https://accounts.google.com;"
-  );
   next();
 });
 

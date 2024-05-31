@@ -105,6 +105,10 @@ textarea {
 .post-form{
   width: 45%;
 }
+.logout{
+  text-align: center;
+  font-size: 40px;
+}
 /*-------Create A new Post-----------*/
 
 #title {
