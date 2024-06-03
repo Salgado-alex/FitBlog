@@ -1,41 +1,41 @@
+{{! The Features we submitted for our project survey were
+we decided to change it to adding a picture to a post and 
+making a comment to a post beacause these features will be able 
+to make the user experience better
+
+}}
+
 {{! Partial for a single post }}
 <div class="post">
-  <div class="post-avatar">
-    <!-- the user's avatar -->
-    <img src="{{#if user.avatar_url}}{{user.avatar_url}}{{else}}/avatar/{{username}}{{/if}}" 
-     alt="User Avatar" 
-     class="header-avatar">
-  </div>
-  <div class="post-content ">
+  <div class="post-content">
+    <!-- the user's avatar and username -->
+    <div class="post-header">
+        <div class="post-avatar">
+            <img src="{{#if user.avatar_url}}{{user.avatar_url}}{{else}}/avatar/{{username}}{{/if}}" alt="User Avatar" class="header-avatar">
+        </div>
+        <div class="post-user-info">
+            <span class="username">{{username}}</span>
+            <span class="timestamp">{{timestamp}}</span>
+        </div>
+    </div>
     <!-- the post -->
+    {{#if image}}
+      <img src="{{image}}" alt="Post image" class="post-image">
+    {{/if}}
     <h2>{{title}}</h2>
-    {{! Title of Post }}
     <p>{{content}}</p>
-    {{!Content of Post}}
-     <div class="post-status-bar"> 
-      <!-- everything that is shown in the status bar -->
-      <!-- Heart = ♥ -->
-      <!-- font awesome  trashcan = <i class="fas fa-trash-alt"> </i>-->
+    <!-- everything that is shown in the status bar -->
+    <div class="post-status-bar"> 
+      <!-- Number of likes -->
       <span class="likes-count">Likes: {{likes}}</span>
-      {{!# of likes}}
-      <button
-        class="like-button"
-        data-id="{{id}}"
-        onclick="handleLikeClick(event)"
-      > <i class="far fa-heart"></i>
-      </button>{{!Like Button}}
-      <button
-        class="delete-button"
-        data-id="{{id}}"
-        onclick="handleDeleteClick(event)"
-      > <i class="fas fa-trash-alt"> </i>  
-      </button>
-      {{! Delete button}}
-       <p id="user-info-post">Posted by {{username}} on {{timestamp}}</p>
-    {{!Post Info}}
+      <!-- Like Button -->
+      <button class="like-button" data-id="{{id}}" onclick="handleLikeClick(event)"><i class="far fa-heart"></i></button>
+      <!-- Delete button -->
+      <button class="delete-button" data-id="{{id}}" onclick="handleDeleteClick(event)"><i class="fas fa-trash-alt"></i></button>
     </div>
   </div>
 </div>
+
 <script>
   function handleLikeClick(event) {
 

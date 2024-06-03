@@ -11,7 +11,7 @@
         <section class="post-form">
             <h1 class="home-title">Create a New post</h1>
             <!-- make a header here -->
-            <form action="/posts" method="POST">
+            <form action="/posts" method="POST" enctype="multipart/form-data">
                 <!-- title input field name = "title" -->
                 <!-- text area input field name = "content" -->
                 <input type="text" placeholder="Title" name="title" id="title">
@@ -19,6 +19,10 @@
                 <div class="form-actions">
                     <!-- Once the emoji-button is pressed envoke the toggleEmojiPanel function-->
                     <button type="button" class="emoji-button" onclick="toggleEmojiPanel()">💪</button>
+                    {{!upload pic}}
+                    <div class="file_upload">
+                    <input type="file" name="image" class="file_upload">    
+                    </div>
                     <button type="submit" class="post-button">Post</button>
                 </div>
             </form>

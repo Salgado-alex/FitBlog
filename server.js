@@ -3,7 +3,8 @@ const express = require("express");
 const expressHandlebars = require("express-handlebars");
 const session = require("express-session");
 const canvas = require("canvas");
-
+const multer = require("multer");
+const path = require("path");
 // Import sqlite modules
 const sqlite = require("sqlite");
 const sqlite3 = require("sqlite3");
@@ -64,7 +65,8 @@ async function initializeDB() {
             username TEXT NOT NULL,
             timestamp DATETIME NOT NULL,
             likes INTEGER NOT NULL,
-            likedAmount TEXT NOT NULL
+            likedAmount TEXT NOT NULL,
+            image TEXT
         );
     `);
     // Insert users
@@ -192,6 +194,20 @@ app.use((req, res, next) => {
 app.use(express.static("public")); // Serve static files
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies (as sent by HTML forms)
 app.use(express.json()); // Parse JSON bodies (as sent by API clients)
+
+
+// Configure multer for file upload
+const storage = multer.diskStorage({
+    destination: (req, file, cb) =>{
+      cb(null, 'public/upload/');
+    },
+    filename: (req, file, cb) => {
+      console.log(file)
+      cb(null, Date.now() + path.extname(file.originalname)); 
+    }
+});
+const upload = multer({ storage: storage });
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Routes
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -306,24 +322,25 @@ app.get("/posts", async (req, res) => {
   const user = (await getCurrentUser(req)) || {};
   res.render("home", { posts, user, style: "styles.css" });
 });
-app.post("/posts", async (req, res) => {
-  try {
-    // Get postr info
-    const { title, postInfo } = req.body;
-    const userId = req.session.userId;
-    // Get the current user from the database
-    const user = await findUserById(userId);
-    if (!userId || !user) {
-      return res.redirect("/login");
-    }
-    // Add the new post
-    await addPost(title, postInfo, user.username);
-    // Redirect to home
-    res.redirect("/");
-  } catch (error) {
-    console.error("Error handling post request:", error);
-  }
+app.get("/logout", async (req, res) => {
+  // TODO: Logout the user
+  await logoutUser(req, res);
 });
+
+app.get("/googleLogout", (req, res) => {
+  res.render("googleLogout", {
+    message: "You have been successfully logged out.",
+    style: "styles.css",
+  });
+});
+
+app.get("/logoutCallback", (req, res) => {
+  console.log(req.session.Id, req.session.hashedGoogleId);
+  res.clearCookie("connect.sid");
+  res.redirect("/");
+  
+}); 
+
 app.post("/like/:id", isAuthenticated, (req, res) => {
   // TODO: Update post likes
   updatePostLikes(req, res);
@@ -336,15 +353,28 @@ app.get("/avatar/:username", (req, res) => {
   // TODO: Serve the avatar image for the user
   handleAvatar(req, res);
 });
-// app.post("/registerUser", async (req, res) => {
-//   // TODO: Register a new user
-//   // When for register button is clicked call this func
-//   const username = req.body.username;
-//   console.log(username);
-//   registerUser(req, res);
-//   res.render("loginRegister", { username, style: "login.css" });
-// });
 
+app.post("/posts", upload.single('image'), async (req, res) => {
+  try {
+    // Get postr info
+    const { title, postInfo } = req.body;
+    const userId = req.session.userId;
+    // Get the current user from the database
+    const user = await findUserById(userId);
+    if (!userId || !user) {
+      return res.redirect("/login");
+    }
+    //imge path
+    const image = req.file ? `/upload/${req.file.filename}`: null;
+
+    // Add the new post
+    await addPost(title, postInfo, user.username, image);
+    // Redirect to home
+    res.redirect("/");
+  } catch (error) {
+    console.error("Error handling post request:", error);
+  }
+});
 app.post("/registerUser", async (req, res) => {
   try {
     // Get the username from the request body
@@ -378,22 +408,6 @@ app.post("/registerUser", async (req, res) => {
 app.post("/login", (req, res) => {
   // When login button is clicked call this func
   loginUser(req, res);
-});
-app.get("/logout", async (req, res) => {
-  // TODO: Logout the user
-  await logoutUser(req, res);
-});
-
-app.get("/googleLogout", (req, res) => {
-  res.render("googleLogout", {
-    message: "You have been successfully logged out.",
-    style: "styles.css",
-  });
-});
-
-app.get("/logoutCallback", (req, res) => {
-  console.log(req.session.Id, req.session.hashedGoogleId);
-  res.redirect("/");
 });
 
 app.post("/delete/:id", isAuthenticated, async (req, res) => {
@@ -530,28 +544,6 @@ async function findUserById(userId) {
   }
 }
 
-// async function addUser(username, hashedGoogleIds) {
-//   try {
-//     // Open a connection to the database
-//     const db = await sqlite.open({
-//       filename: dbFileName,
-//       driver: sqlite3.Database,
-//     });
-//     console.log("Connected to the SQLite database.");
-
-//     // Insert the user into the users table
-//     // Once I have the goog autho add it
-//     await db.run("INSERT INTO users (username, memberSince) VALUES (?, ?)", [
-//       username,
-//       new Date().toISOString(),
-//     ]);
-//     console.log(`User '${username}' added successfully`);
-//     // Close the database connection
-//     await db.close();
-//   } catch (error) {
-//     throw error;
-//   }
-// }
 
 async function addUser(username, hashedGoogleId) {
   try {
@@ -587,36 +579,6 @@ function isAuthenticated(req, res, next) {
   }
 }
 
-// // Function to register a user
-// async function registerUser(req, res) {
-//   try {
-//     // Get the username from the request body
-//     const username = req.body.username.trim();
-//     console.log(username);
-//     const hashedGoogleId = req.session.hashedGoogleId;
-//     console.log(hashedGoogleId);
-//     // Check if the username is empty
-//     if (!username) {
-//       return res.redirect("/registerUser?error=Username%20cannot%20be%20empty");
-//     }
-//     // Check if the user already exists
-//     const existingUser = await findUserByUsername(username);
-//     if (existingUser) {
-//       return res.redirect("/registerUser?error=Username%20already%20exists");
-//     }
-//     // Register the user (assuming addUser is synchronous)
-//     await addUser(username, hashedGoogleId);
-//     console.log("User registered successfully");
-//     // Redirect or send response as needed
-//     const user = await findUserByHashedGoogleId(hashedGoogleId);
-//     req.session.loggedIn = true;
-//     req.session.userId = user.id;
-//     res.redirect("/");
-//   } catch (error) {
-//     console.error("Error registering user:", error);
-//     res.redirect("/error");
-//   }
-// }
 
 async function loginUser(req, res) {
   try {
@@ -657,22 +619,7 @@ async function loginUser(req, res) {
   }
 }
 
-// // Function to logout a user
-// function logoutUser(req, res) {
-//   // TODO: Destroy session and redirect appropriately
-//   req.session.destroy((err) => {
-//     if (err) {
-//       console.error("Error destroying session: ", err);
-//       res.redirect("/error");
-//     } else {
-//       // res.sendFile(path.join(__dirname, "public", "googleLogout.html"));
-//       // res.redirect("/");
-//       // res.sendFile(__dirname + "/views/logout.html");
-//       res.redirect("/googleLogout");
-//       console.log("logout!");
-//     }
-//   });
-// }
+// Function to logout a user
 
 async function logoutUser(req, res) {
   try {
@@ -686,7 +633,6 @@ async function logoutUser(req, res) {
   }
 }
 
-// Function to render the profile page
 // Function to render the profile page
 async function renderProfile(req, res) {
   try {
@@ -832,29 +778,9 @@ async function getPosts() {
   }
 }
 
-// async function getPostById(postId) {
-//   try {
-//     // Open the database connection
-//     const db = await sqlite.open({
-//       filename: dbFileName,
-//       driver: sqlite3.Database,
-//     });
-//     console.log("Connected to the SQLite database.");
-//     // Query the database to retrieve the post with the specified ID
-//     const post = await db.get("SELECT * FROM posts WHERE id = ?", [postId]);
-//     // Close the database connection
-//     await db.close();
-//     // Return the retrieved post
-//     return post;
-//   } catch (error) {
-//     // Handle any errors that occur during the database operation
-//     console.error("Error retrieving post by ID:", error);
-//     return null;
-//   }
-// }
 
 // Function to add a new post
-async function addPost(title, content, username) {
+async function addPost(title, content, username, image) {
   // data that is always inserted into post
   const timestamp = new Date().toISOString();
   const likes = 0;
@@ -868,8 +794,8 @@ async function addPost(title, content, username) {
     console.log("Connected to the SQLite database.");
     // Inseert data to datbase
     await db.run(
-      "INSERT INTO posts (title, content, username, timestamp, likes, likedAmount) VALUES (?, ?, ?, ?, ?, ?)",
-      [title, content, username, timestamp, likes, JSON.stringify(likedAmount)]
+      "INSERT INTO posts (title, content, username, timestamp, likes, likedAmount,image) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [title, content, username, timestamp, likes, JSON.stringify(likedAmount),image]
     );
     // Check if they are being inserted into the datatbase
     console.log("Inserted post:", {
@@ -879,6 +805,7 @@ async function addPost(title, content, username) {
       timestamp,
       likes,
       likedAmount,
+      image
     });
     // Close the database connection after all operations
     await db.close();
@@ -921,17 +848,6 @@ async function deletePostById(postId, currentUser) {
     return { error: "Failed to delete post" };
   }
 }
-// async function findUserByHashedGoogleId(hashedGoogleId) {
-//   try {
-//     const currUser = await db.get(
-//       "SELECT * FROM users WHERE hashedGoogleId = ?",
-//       [hashedGoogleId]
-//     );
-//     return currUser;
-//   } catch (err) {
-//     throw err;
-//   }
-// }
 
 async function findUserByHashedGoogleId(hashedGoogleId) {
   try {

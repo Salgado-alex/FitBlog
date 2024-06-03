@@ -11,59 +11,10 @@
     {{! Form has an attribute where where the form data will be submitted when the form is submitted. This case it is the button  }}
     {{! The form method is via POST }}
     <form action="/login" method="POST">
-      {{! the login form goes here  }}
-      {{! <label for="username">Username:</label>   }}
-      {{!<p>Username:</p>}}
-      {{! the name attribute: he data entered in this field will be sent to the server with the name  }}
       <div>
         <a href="/auth/google"> Sign in with google </a>
       </div>
-      {{! <input type="text" name="username" id="username" placeholder="Username" />  }}
-      {{! <input
-        type="password"
-        name="password"
-        id="password"
-        placeholder="Password"
-      />}}
-      {{! Once clicked it will submit the form  }}
-
     </form>
   </section>
-
-  {{!--  <!-- say --OR-- ... with style -->
-  <div class="divider">OR</div>
-
-  <section class="register-area">
-    <div>
-
-      <h2>Register</h2>
-      <!-- Display the registration success message -->
-    {{#if username}}
-      <p style="color: rgb(0, 42, 255);">{{username}} is now registered 💪</p>
-    {{/if}}
-      <!-- errors will appear here -->
-      {{#if regError}}
-        <p style="color: red;">{{regError}}</p>
-      {{/if}}
-      <form action="/register" method="POST">
-        {{!<p>Username:</p>}}
-        <!-- the registration form goes here -->
-        <input
-          type="text"
-          name="username"
-          id="username"
-          placeholder="Username"
-        />
-        {{! <input
-          type="password"
-          name="password"
-          id="password"
-          placeholder="Password"
-        />}}
-        {{! Once clicked it will submit the form  }}
-        <button type="submit" id="logBtn">Login</button>
-      </form>
-    </div>
-  </section>  --}}
 
 </section>
