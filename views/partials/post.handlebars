@@ -1,11 +1,3 @@
-{{! The Features we submitted for our project survey were
-we decided to change it to adding a picture to a post and 
-making a comment to a post beacause these features will be able 
-to make the user experience better interaction within users
-
-.env emoji api
-}}
-
 {{! Partial for a single post }}
 <div class="post">
   <div class="post-content">
@@ -32,53 +24,56 @@ to make the user experience better interaction within users
     <div class="post-status-bar"> 
       <!-- Number of likes -->
       <span class="likes-count">Likes: {{likes}}</span>
-      <!-- Like Button -->
-      <button class="like-button" data-id="{{id}}" onclick="handleLikeClick(event)"><i class="far fa-heart"></i></button>
-      <!-- Delete button -->
-      <button class="delete-button" data-id="{{id}}" onclick="handleDeleteClick(event)"><i class="fas fa-trash-alt"></i></button>
+      
+       {{#ifCond username user.username}}
+          <!---Delete Button-->
+            <button class="delete-button" data-id="{{id}}" onclick="handleDeleteClick(event)"><i class="fas fa-trash-alt"></i></button> 
+        {{else}}
+          <!-- Like Button -->
+            <button class="like-button" data-id="{{id}}" onclick="handleLikeClick(event)"><i class="far fa-heart"></i></button>
+        {{/ifCond}}
+
     </div>
-    <!-- Comments Section -->
-    <div>
-        
- {{!-- Render Comments --}}
-{{#if this.comments}}
-<div class="comments-section">
-    <h3>Comments</h3>
-    {{#each this.comments}}
-    <div class="comment">
-        <p><strong>{{this.username}}</strong> {{this.content}}</p>
-    </div>
-    {{/each}}
-    {{else}}
-    <div class="no-comment">
+
+  <div>
+      {{!-- Render Comments --}}
+      {{#if this.comments}}
+        <div class="comments-section">
+        <h3>Comments</h3>
+        {{#each this.comments}}
+          <div class="comment">
+          <p><strong>{{this.username}}</strong> {{this.content}}</p>
+          </div>
+        {{/each}}
+      {{else}}
+        <div class="no-comment">
         <h3>No comments</h3>
-    </div>
+        </div>
     {{/if}}
-</div>
+      </div>
 
       {{!-- Comment form --}}
-{{#if user.username}}
-  {{#if username }}
-      <div class="comment-form">
-        <form action="/comment" method="post">
-        <input type="hidden" name="postId" value="{{id}}">
-        <textarea name="content" placeholder="{{user.username}} write a comment..." required></textarea>
-        <button type="submit">Comment</button>
-        </form>
-      </div>
-  {{else}}
-    <div class="cannot-comment">
-    <p> cannot comment </p>
-    </div>
-  {{/if}}
-{{else}}
-<div class="login-prompt">
-    <p>Please <a href="/login">log in</a> to comment.</p>
-</div>
-{{/if}}
-
+      {{#if user.username}}
+        {{#if username }}
+          <div class="comment-form">
+            <form action="/comment" method="post">
+              <input type="hidden" name="postId" value="{{id}}">
+              <textarea name="content" placeholder="{{user.username}} write a comment..." required></textarea>
+              <button type="submit">Comment</button>
+            </form>
+          </div>
+        {{else}}
+          <div class="cannot-comment">
+            <p> cannot comment </p>
+          </div>
+        {{/if}}
+      {{else}}
+        <div class="login-prompt">
+          <p>Please <a href="/login">log in</a> to comment.</p>
         </div>
-      
+      {{/if}}
+
+    </div>
   </div>
 </div>
 

@@ -62,6 +62,7 @@ async function initializeDB() {
         timestamp: "1/1/2024, 3:55:54 PM",
         likes: 2,
         likedAmount: [],
+        image: "",
       },
       {
         title: "Fuel Your Fire: Tips for a Powerful Workout!",
@@ -71,6 +72,7 @@ async function initializeDB() {
         timestamp: "2/16/2024, 1:20:30 PM",
         likes: 5,
         likedAmount: [],
+        image: "",
       },
       {
         title: "Mind Over Matter: Cultivating Mental Resilience!",
@@ -80,6 +82,7 @@ async function initializeDB() {
         timestamp: "2/16/2024, 5:30:30 PM",
         likes: 20,
         likedAmount: [],
+        image: "/upload/gym.jpg",
       },
     ];
 
@@ -126,7 +129,7 @@ async function initializeDB() {
     await Promise.all(
       posts.map(async (post) => {
         await db.run(
-          "INSERT INTO posts (title, content, username, timestamp, likes, likedAmount) VALUES (?, ?, ?, ?, ?, ?)",
+          "INSERT INTO posts (title, content, username, timestamp, likes, likedAmount, image) VALUES (?, ?, ?, ?, ?, ?, ?)",
           [
             post.title,
             post.content,
@@ -134,6 +137,7 @@ async function initializeDB() {
             post.timestamp,
             post.likes,
             JSON.stringify(post.likedAmount),
+            post.image,
           ]
         );
         // Check if they are being inserted into the datatbase

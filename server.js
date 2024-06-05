@@ -297,6 +297,7 @@ app.post("/posts", upload.single("image"), async (req, res) => {
     res.redirect("/");
   } catch (error) {
     console.error("Error handling post request:", error);
+    res.redirect("/error");
   }
 });
 app.post("/registerUser", async (req, res) => {
@@ -356,33 +357,38 @@ app.post("/delete/:id", isAuthenticated, async (req, res) => {
   } catch (error) {
     // Handle errors
     console.error("Error deleting post:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.redirect("/error");
   }
 });
 app.post("/comment", async (req, res) => {
-  const { postId, content } = req.body;
-  const user = await getCurrentUser(req);
-  const db = await sqlite.open({
-    filename: dbFileName,
-    driver: sqlite3.Database,
-  });
-  if (user) {
-    await db.run(
-      "INSERT INTO comments (postId, username, content, timestamp) VALUES (?, ?, ?, ?)",
-      [postId, user.username, content, new Date().toLocaleString()]
-    );
+  try {
+    const { postId, content } = req.body;
+    const user = await getCurrentUser(req);
+    const db = await sqlite.open({
+      filename: dbFileName,
+      driver: sqlite3.Database,
+    });
+    if (user) {
+      await db.run(
+        "INSERT INTO comments (postId, username, content, timestamp) VALUES (?, ?, ?, ?)",
+        [postId, user.username, content, new Date().toLocaleString()]
+      );
 
-    // Check the referer header to determine the previous page
-    const referer = req.header("Referer") || "/";
+      // Check the referer header to determine the previous page
+      const referer = req.header("Referer") || "/";
 
-    // Redirect based on the referer URL
-    if (referer.includes("/profile")) {
-      res.redirect("/profile");
+      // Redirect based on the referer URL
+      if (referer.includes("/profile")) {
+        res.redirect("/profile");
+      } else {
+        res.redirect("/");
+      }
     } else {
-      res.redirect("/");
+      res.redirect("/login");
     }
-  } else {
-    res.redirect("/login");
+  } catch (error) {
+    console.error("Error commenting:", error);
+    res.redirect("/error");
   }
 });
 
@@ -397,58 +403,6 @@ app.listen(PORT, () => {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Support Functions and Variables
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-// Example data for posts and users
-let posts = [
-  {
-    title: "Unlock Your Potential: Embrace the Fitness Journey!",
-    content:
-      "Hey FitFam! Today, I'm sharing my journey from couch potato to fitness enthusiast. It wasn't easy, but the results are worth it! Remember, every step forward, no matter how small, is progress. Let's conquer those fitness goals together!",
-    username: "FitFreak",
-    timestamp: "1/1/2024, 3:55:54 PM",
-    likes: 2,
-    likedAmount: [],
-  },
-  {
-    title: "Fuel Your Fire: Tips for a Powerful Workout!",
-    content:
-      "Hey warriors! Need a boost? Try pre-workout snacks like banana with almond butter or Greek yogurt with berries for sustained energy. Keep pushing!",
-    username: "GymRat",
-    timestamp: "2/16/2024, 1:20:30 PM",
-    likes: 5,
-    likedAmount: [],
-  },
-  {
-    title: "Mind Over Matter: Cultivating Mental Resilience!",
-    content:
-      "Hello champions! Fitness isn't just about physical strength; it's about mental toughness too. When you feel like giving up, visualize your success.",
-    username: "IronMind",
-    timestamp: "2/16/2024, 5:30:30 PM",
-    likes: 20,
-    likedAmount: [],
-  },
-];
-
-let users = [
-  {
-    username: "FitFreak",
-    hashedGoogleId: undefined,
-    avatar_url: undefined,
-    memberSince: "1/1/2024, 8:30:54 AM",
-  },
-  {
-    username: "GymRat",
-    hashedGoogleId: undefined,
-    avatar_url: undefined,
-    memberSince: "2/12/2024, 1:20:30 AM",
-  },
-  {
-    username: "IronMind",
-    hashedGoogleId: undefined,
-    avatar_url: undefined,
-    memberSince: "4/20/2024, 2:00:00 PM",
-  },
-];
 
 async function findUserByUsername(username) {
   try {
@@ -632,7 +586,7 @@ async function updatePostLikes(req, res) {
       .json({ message: "Post liked successfully", likes: post.likes });
   } catch (error) {
     console.error("Error updating post likes:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.redirect("/error");
   }
 }
 
@@ -695,7 +649,6 @@ async function getPosts() {
         "SELECT * FROM comments WHERE postId = ? ORDER BY timestamp DESC",
         [post.id]
       );
-      console.log("in profile");
       post.comments = comments;
     }
     await db.close();
@@ -747,6 +700,7 @@ async function addPost(title, content, username, image) {
     await db.close();
   } catch (error) {
     console.error("Error initializing database:", error);
+    res.redirect("/error");
   }
 }
 
@@ -781,7 +735,7 @@ async function deletePostById(postId, currentUser) {
     return { success: "Post deleted successfully" };
   } catch (error) {
     console.error("Error deleting post:", error);
-    return { error: "Failed to delete post" };
+    res.redirect("/error");
   }
 }
 
@@ -839,7 +793,7 @@ async function getFilteredPost(category) {
     return posts;
   } catch (error) {
     console.error("Error in getFilteredPost function:", error);
-    throw new Error("Failed to fetch filtered posts");
+    res.redirect("/error");
   }
 }
 
@@ -848,7 +802,7 @@ function generateAvatar(letter, width = 100, height = 100) {
   // TODO: Generate an avatar image with a letter
   // Steps:
   // 1. Choose a color scheme based on the letter
-  const color = "#008B8B";
+  const color = "#708090";
   // 2. Create a canvas with the specified width and height
   const canvas = require("canvas").createCanvas(width, height);
   const ctx = canvas.getContext("2d");
