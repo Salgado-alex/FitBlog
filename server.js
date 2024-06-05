@@ -68,7 +68,16 @@ async function initializeDB() {
             likedAmount TEXT NOT NULL,
             image TEXT
         );
-    `);
+        CREATE TABLE IF NOT EXISTS comments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            postId INTEGER NOT NULL,
+            username TEXT NOT NULL,
+            content TEXT NOT NULL,
+            timestamp DATETIME NOT NULL,
+            FOREIGN KEY (postId) REFERENCES posts(id),
+            FOREIGN KEY (username) REFERENCES users(username)
+        );
+`);
     // Insert users
     // Promise.all waits for all the other promises to complete
     // users.map is used to iterate over each user in the users array and perform an asynchronous operation (inserting the user into a database) for each user
@@ -104,6 +113,19 @@ async function initializeDB() {
         );
         // Check if they are being inserted into the datatbase
         console.log("Inserted post:", post);
+      })
+    );
+    await Promise.all(
+      comments.map((comment) => {
+        return db.run(
+          "INSERT INTO comments (postId, username, content, timestamp) VALUES (?, ?, ?, ?)",
+          [
+            comment.postId,
+            comment.username,
+            comment.content,
+            comment.timestamp,
+          ]
+        );
       })
     );
 
@@ -238,7 +260,10 @@ passport.deserializeUser((obj, done) => {
 });
 app.get(
   "/auth/google",
-  passport.authenticate("google", { scope: ["profile"] })
+  passport.authenticate("google", {
+    scope: ["profile"],
+    prompt: "select_account",
+  })
 );
 
 app.get(
@@ -405,10 +430,10 @@ app.post("/registerUser", async (req, res) => {
   }
 });
 
-app.post("/login", (req, res) => {
-  // When login button is clicked call this func
-  loginUser(req, res);
-});
+// app.post("/login", (req, res) => {
+//   // When login button is clicked call this func
+//   loginUser(req, res);
+// });
 
 app.post("/delete/:id", isAuthenticated, async (req, res) => {
   try {
@@ -434,6 +459,32 @@ app.post("/delete/:id", isAuthenticated, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+app.post("/comment", async (req, res) => {
+  const { postId, content } = req.body;
+  const user = await getCurrentUser(req);
+   const db = await sqlite.open({
+      filename: dbFileName,
+      driver: sqlite3.Database,
+    });
+  if (user) {
+    await db.run(
+      "INSERT INTO comments (postId, username, content, timestamp) VALUES (?, ?, ?, ?)",
+      [postId, user.username, content, new Date().toLocaleString()]
+    );
+
+    // Check the referer header to determine the previous page
+    const referer = req.header("Referer") || "/";
+
+    // Redirect based on the referer URL
+    if (referer.includes("/profile")) {
+      res.redirect("/profile");
+    } else {
+      res.redirect("/");
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Server Activation
@@ -454,7 +505,7 @@ let posts = [
     content:
       "Hey FitFam! Today, I'm sharing my journey from couch potato to fitness enthusiast. It wasn't easy, but the results are worth it! Remember, every step forward, no matter how small, is progress. Let's conquer those fitness goals together!",
     username: "FitFreak",
-    timestamp: "2024-01-01M3:55:54 PM",
+    timestamp: "1/1/2024, 3:55:54 PM",
     likes: 2,
     likedAmount: [],
   },
@@ -463,7 +514,7 @@ let posts = [
     content:
       "Hey warriors! Need a boost? Try pre-workout snacks like banana with almond butter or Greek yogurt with berries for sustained energy. Keep pushing!",
     username: "GymRat",
-    timestamp: "2024-02-16M1:20:30 PM",
+    timestamp: "2/16/2024, 1:20:30 PM",
     likes: 5,
     likedAmount: [],
   },
@@ -472,7 +523,7 @@ let posts = [
     content:
       "Hello champions! Fitness isn't just about physical strength; it's about mental toughness too. When you feel like giving up, visualize your success.",
     username: "IronMind",
-    timestamp: "2024-02-16M5:30:30 PM",
+    timestamp: "2/16/2024, 5:30:30 PM",
     likes: 20,
     likedAmount: [],
   },
@@ -558,7 +609,7 @@ async function addUser(username, hashedGoogleId) {
     // Once I have the goog autho add it
     await db.run(
       "INSERT INTO users (username, hashedGoogleId, memberSince) VALUES (?, ?, ?)",
-      [username, hashedGoogleId, new Date().toISOString()]
+      [username, hashedGoogleId, new Date().toLocaleString()]
     );
     console.log(`User '${username}' added successfully`);
     // Close the database connection
@@ -580,44 +631,44 @@ function isAuthenticated(req, res, next) {
 }
 
 
-async function loginUser(req, res) {
-  try {
-    // Get user name being inputed
-    const username = req.body.username;
-    // Open connection to database
-    const db = await sqlite.open({
-      filename: dbFileName,
-      driver: sqlite3.Database,
-    });
-    console.log("Connected to the SQLite database.");
-    // Looks in the database for username and if it matches it attaches it to user
-    const user = await db.get("SELECT * FROM users WHERE username = ?", [
-      username,
-    ]);
-    // Close the database connection
-    await db.close();
-    //  If found log in
-    if (user) {
-      // indcates the user is logged in
-      req.session.loggedIn = true;
-      // sets userID
-      req.session.userId = user.id;
-      console.log(user.id);
-      // redirects to the main page
-      res.redirect("/");
-      console.log("User logged in:", user.username);
-    }
-    // User not in the system
-    else {
-      console.log("no user found");
-      return res.redirect("/login?error=Username%20not%20found");
-    }
-  } catch (error) {
-    // Handle any errors
-    console.error("Error logging in:", error);
-    res.redirect("/error");
-  }
-}
+// async function loginUser(req, res) {
+//   try {
+//     // Get user name being inputed
+//     const username = req.body.username;
+//     // Open connection to database
+//     const db = await sqlite.open({
+//       filename: dbFileName,
+//       driver: sqlite3.Database,
+//     });
+//     console.log("Connected to the SQLite database.");
+//     // Looks in the database for username and if it matches it attaches it to user
+//     const user = await db.get("SELECT * FROM users WHERE username = ?", [
+//       username,
+//     ]);
+//     // Close the database connection
+//     await db.close();
+//     //  If found log in
+//     if (user) {
+//       // indcates the user is logged in
+//       req.session.loggedIn = true;
+//       // sets userID
+//       req.session.userId = user.id;
+//       console.log(user.id);
+//       // redirects to the main page
+//       res.redirect("/");
+//       console.log("User logged in:", user.username);
+//     }
+//     // User not in the system
+//     else {
+//       console.log("no user found");
+//       return res.redirect("/login?error=Username%20not%20found");
+//     }
+//   } catch (error) {
+//     // Handle any errors
+//     console.error("Error logging in:", error);
+//     res.redirect("/error");
+//   }
+// }
 
 // Function to logout a user
 
@@ -649,6 +700,7 @@ async function renderProfile(req, res) {
       user: currentUser,
       posts: userPosts,
       style: "profile.css",
+      
     });
     console.log("In profile of ", currentUser);
   } catch (error) {
@@ -769,6 +821,15 @@ async function getPosts() {
     const posts = await db.all("SELECT * FROM posts ORDER BY timestamp DESC");
 
     // Close the DB
+    
+    // Fetch comments for each post
+    for (const post of posts) {
+      const comments = await db.all(
+        "SELECT * FROM comments WHERE postId = ? ORDER BY timestamp DESC",
+        [post.id]
+      );
+      post.comments = comments;
+    }
     await db.close();
     // Return the posts
     return posts;
@@ -782,7 +843,7 @@ async function getPosts() {
 // Function to add a new post
 async function addPost(title, content, username, image) {
   // data that is always inserted into post
-  const timestamp = new Date().toISOString();
+  const timestamp = new Date().toLocaleString();
   const likes = 0;
   const likedAmount = [];
   try {
@@ -887,6 +948,9 @@ async function getFilteredPost(category) {
       case "Oldest":
         query = "SELECT * FROM posts ORDER BY timestamp ASC";
         break;
+      case "Recent":
+        query = "SELECT * FROM posts ORDER by timestamp DESC";
+        break;
       default:
         query = "SELECT * FROM posts ORDER BY timestamp DESC";
         break;
@@ -898,6 +962,7 @@ async function getFilteredPost(category) {
     console.log("Database connection closed after filtering");
 
     return posts;
+    
   } catch (error) {
     console.error("Error in getFilteredPost function:", error);
     throw new Error("Failed to fetch filtered posts");

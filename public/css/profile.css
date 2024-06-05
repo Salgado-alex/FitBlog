@@ -136,7 +136,6 @@ nav ul li a:hover::after {
   display: flex;
   align-items: center;
   padding: 10px 16px;
-  border-bottom: 1px solid #969696;
 }
 
 .post-avatar {
@@ -161,7 +160,7 @@ nav ul li a:hover::after {
 }
 
 .timestamp {
-  font-size: 12px;
+  font-size: 15px;
   color: #999;
 }
 
@@ -181,13 +180,14 @@ nav ul li a:hover::after {
   width: 100%;
   height: auto;
 }
-
+.post-details {
+  padding-bottom: 30px;
+}
 .post-status-bar {
   display: flex;
-
   align-items: center;
   padding: 10px 16px;
-  border-top: 1px solid #404040;
+  border-top: 1px solid #45454569;
 }
 
 .likes-count {
@@ -215,6 +215,63 @@ nav ul li a:hover::after {
   color: #ff0000;
 }
 
+.comments-section {
+  padding: 16px;
+}
+.comments-section h3 {
+  margin: 0;
+  font-size: 14px;
+}
+.comment p {
+  margin: 5px;
+  font-size: 15px;
+}
+.comment p strong {
+  color: #007bff;
+}
+.no-comment h3 {
+  margin: 0;
+  padding: 13px;
+  font-size: 14px;
+}
+.comment-form{
+  padding-left: 10px;
+  padding-bottom: 10px;
+}
+.comment-form button {
+  background: #007bff;
+  color: #fff;
+  padding: 7px 11px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.comment-form button:hover {
+  background: #3d9bff;
+}
+textarea {
+  width: 90%;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: transparent;
+  outline: none;
+  border: none;
+}
+/*-----------filter post-------------*/
+#filterForm label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+#filterForm select {
+  padding: 3px;
+  font-size: 12px;
+  border-radius: 4px;
+  background-color: #d4d4d492;
+  color: #333;
+}
+
+
 /*-------------Footer----------------------*/
 footer {
   color: #363636;
@@ -233,6 +290,9 @@ footer {
   }
   .logo {
     justify-content: center;
+  }
+  .user-posts ul{
+    padding: 10px;
   }
 
   footer {

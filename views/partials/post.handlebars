@@ -1,8 +1,9 @@
 {{! The Features we submitted for our project survey were
 we decided to change it to adding a picture to a post and 
 making a comment to a post beacause these features will be able 
-to make the user experience better
+to make the user experience better interaction within users
 
+.env emoji api
 }}
 
 {{! Partial for a single post }}
@@ -22,8 +23,11 @@ to make the user experience better
     {{#if image}}
       <img src="{{image}}" alt="Post image" class="post-image">
     {{/if}}
-    <h2>{{title}}</h2>
-    <p>{{content}}</p>
+    <div class="post-details">
+      <h2>{{title}}</h2>
+      <p>{{content}}</p> 
+    </div>
+    
     <!-- everything that is shown in the status bar -->
     <div class="post-status-bar"> 
       <!-- Number of likes -->
@@ -33,6 +37,41 @@ to make the user experience better
       <!-- Delete button -->
       <button class="delete-button" data-id="{{id}}" onclick="handleDeleteClick(event)"><i class="fas fa-trash-alt"></i></button>
     </div>
+    <!-- Comments Section -->
+    <div>
+        
+       {{!-- Render Comments --}}
+       {{#if comments}}
+        <div class="comments-section">
+          <h3>Comments</h3>
+            {{#each comments}}
+                <div class="comment">
+                  <p><strong>{{username}}</strong> {{content}}</p>
+                </div>
+            {{/each}}
+            {{else}}
+                <div class="no-comment">
+                 <h3>No comments</h3>
+                </div>
+            {{/if}}
+          
+        </div>
+        {{!-- Comment form --}}
+        {{#if user.username}}
+        <div class="comment-form">
+            <form action="/comment" method="post">
+                <input type="hidden" name="postId" value="{{id}}">
+                <textarea name="content" placeholder="{{user.username}} write a comment..." required></textarea>
+                <button type="submit">Comment</button>
+            </form>
+        {{else}}
+        <div class="login-prompt">
+          <p>Please <a href="/login">log in</a> to comment.</p>
+        </div>
+          
+        {{/if}}
+        </div>
+      
   </div>
 </div>
 

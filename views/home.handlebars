@@ -15,14 +15,12 @@
                 <!-- title input field name = "title" -->
                 <!-- text area input field name = "content" -->
                 <input type="text" placeholder="Title" name="title" id="title">
-                <textarea type="text" placeholder="What is on you're mind {{user.username}}"  name="postInfo" id="postInfo"></textarea>
+                <textarea type="text" placeholder="What is on you're mind {{user.username}}"  name="postInfo" id="postInfo" required></textarea>
                 <div class="form-actions">
                     <!-- Once the emoji-button is pressed envoke the toggleEmojiPanel function-->
                     <button type="button" class="emoji-button" onclick="toggleEmojiPanel()">💪</button>
                     {{!upload pic}}
-                    <div class="file_upload">
                     <input type="file" name="image" class="file_upload">    
-                    </div>
                     <button type="submit" class="post-button">Post</button>
                 </div>
             </form>
@@ -43,9 +41,10 @@
   <form action="/posts" method="get" id="filterForm">
     <label for="category">Filter:</label>
     <select name="category" id="category" onchange="document.getElementById('filterForm').submit()">
-      <option value="all">All</option>
+      <option value="all">Options</option>
       <option value="mostlikes">Most likes</option>
       <option value="Oldest">Oldest</option>
+      <option value="Recent">Recent</option>
     </select>
   </form>
         {{#if posts.length}}
