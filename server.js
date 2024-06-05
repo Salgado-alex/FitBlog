@@ -33,110 +33,7 @@ dotenv.config();
 //  .get(): Retrieves the first row, resolves to an object.
 //  .run(): Executes a data-changing query, resolves to metadata about the execution.
 const dbFileName = "test.db";
-
-async function initializeDB() {
-  try {
-    // Asynchronously opens a connection to an SQLite database file
-    // Using await to wait for the connection to be succesful
-    // Now that we have the db object we can use it to execute SQL queries
-    const db = await sqlite.open({
-      filename: dbFileName,
-      driver: sqlite3.Database,
-    });
-    console.log("Connected to the SQLite database.");
-
-    // Create tables if they don't exist
-    // Using .exec because it a method that returns no data
-    // Returns a Prmosie that resolves to undefined
-    // Once I have the google autho change it
-    await db.exec(`
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL UNIQUE,
-            hashedGoogleId TEXT,
-            avatar_url TEXT,
-            memberSince DATETIME NOT NULL
-        );
-
-        CREATE TABLE IF NOT EXISTS posts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            content TEXT NOT NULL,
-            username TEXT NOT NULL,
-            timestamp DATETIME NOT NULL,
-            likes INTEGER NOT NULL,
-            likedAmount TEXT NOT NULL,
-            image TEXT
-        );
-        CREATE TABLE IF NOT EXISTS comments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            postId INTEGER NOT NULL,
-            username TEXT NOT NULL,
-            content TEXT NOT NULL,
-            timestamp DATETIME NOT NULL,
-            FOREIGN KEY (postId) REFERENCES posts(id),
-            FOREIGN KEY (username) REFERENCES users(username)
-        );
-`);
-    // Insert users
-    // Promise.all waits for all the other promises to complete
-    // users.map is used to iterate over each user in the users array and perform an asynchronous operation (inserting the user into a database) for each user
-    await Promise.all(
-      users.map(async (user) => {
-        // .run use when INSERT UPDATE or DELETE
-        await db.run(
-          "INSERT INTO users (username, hashedGoogleId, avatar_url, memberSince) VALUES (?, ?, ?, ?)",
-          [
-            user.username,
-            user.hashedGoogleId,
-            user.avatar_url,
-            user.memberSince,
-          ]
-        );
-        console.log("Inserted user:", user); // Log the inserted user
-      })
-    );
-
-    // Insert posts
-    await Promise.all(
-      posts.map(async (post) => {
-        await db.run(
-          "INSERT INTO posts (title, content, username, timestamp, likes, likedAmount) VALUES (?, ?, ?, ?, ?, ?)",
-          [
-            post.title,
-            post.content,
-            post.username,
-            post.timestamp,
-            post.likes,
-            JSON.stringify(post.likedAmount),
-          ]
-        );
-        // Check if they are being inserted into the datatbase
-        console.log("Inserted post:", post);
-      })
-    );
-    await Promise.all(
-      comments.map((comment) => {
-        return db.run(
-          "INSERT INTO comments (postId, username, content, timestamp) VALUES (?, ?, ?, ?)",
-          [
-            comment.postId,
-            comment.username,
-            comment.content,
-            comment.timestamp,
-          ]
-        );
-      })
-    );
-
-    // Close the database connection after all operations
-    console.log("Database populated with initial data.");
-    await db.close();
-  } catch (error) {
-    console.error("Error initializing database:", error);
-  }
-}
-initializeDB();
+require("./initializeDB.js");
 
 // Get access to all the methods of express
 const app = express();
@@ -217,16 +114,15 @@ app.use(express.static("public")); // Serve static files
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies (as sent by HTML forms)
 app.use(express.json()); // Parse JSON bodies (as sent by API clients)
 
-
 // Configure multer for file upload
 const storage = multer.diskStorage({
-    destination: (req, file, cb) =>{
-      cb(null, 'public/upload/');
-    },
-    filename: (req, file, cb) => {
-      console.log(file)
-      cb(null, Date.now() + path.extname(file.originalname)); 
-    }
+  destination: (req, file, cb) => {
+    cb(null, "public/upload/");
+  },
+  filename: (req, file, cb) => {
+    console.log(file);
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
 });
 const upload = multer({ storage: storage });
 
@@ -378,8 +274,11 @@ app.get("/avatar/:username", (req, res) => {
   // TODO: Serve the avatar image for the user
   handleAvatar(req, res);
 });
-
-app.post("/posts", upload.single('image'), async (req, res) => {
+const emojiApiKey = process.env.EMOJI_API_KEY;
+app.get("/apiEmojiKey", (req, res) => {
+  res.json({ apiKey: emojiApiKey });
+});
+app.post("/posts", upload.single("image"), async (req, res) => {
   try {
     // Get postr info
     const { title, postInfo } = req.body;
@@ -390,7 +289,7 @@ app.post("/posts", upload.single('image'), async (req, res) => {
       return res.redirect("/login");
     }
     //imge path
-    const image = req.file ? `/upload/${req.file.filename}`: null;
+    const image = req.file ? `/upload/${req.file.filename}` : null;
 
     // Add the new post
     await addPost(title, postInfo, user.username, image);
@@ -452,6 +351,7 @@ app.post("/delete/:id", isAuthenticated, async (req, res) => {
     }
     // Fetch the updated list of posts
     const posts = await getPosts();
+
     res.status(200).json({ message: result.success, posts });
   } catch (error) {
     // Handle errors
@@ -462,10 +362,10 @@ app.post("/delete/:id", isAuthenticated, async (req, res) => {
 app.post("/comment", async (req, res) => {
   const { postId, content } = req.body;
   const user = await getCurrentUser(req);
-   const db = await sqlite.open({
-      filename: dbFileName,
-      driver: sqlite3.Database,
-    });
+  const db = await sqlite.open({
+    filename: dbFileName,
+    driver: sqlite3.Database,
+  });
   if (user) {
     await db.run(
       "INSERT INTO comments (postId, username, content, timestamp) VALUES (?, ?, ?, ?)",
@@ -595,7 +495,6 @@ async function findUserById(userId) {
   }
 }
 
-
 async function addUser(username, hashedGoogleId) {
   try {
     // Open a connection to the database
@@ -630,8 +529,6 @@ function isAuthenticated(req, res, next) {
   }
 }
 
-
-
 // Route handler for logging out
 async function logoutUser(req, res) {
   try {
@@ -644,8 +541,8 @@ async function logoutUser(req, res) {
       console.log("No session to destroy");
     }
     req.session = null;
-    // Clears the cookie on the client side 
-    res.clearCookie('connect.sid');
+    // Clears the cookie on the client side
+    res.clearCookie("connect.sid");
     // Redirect to the home page or any other appropriate page
     res.redirect("/googleLogout");
   } catch (err) {
@@ -671,7 +568,6 @@ async function renderProfile(req, res) {
       user: currentUser,
       posts: userPosts,
       style: "profile.css",
-      
     });
     console.log("In profile of ", currentUser);
   } catch (error) {
@@ -792,13 +688,14 @@ async function getPosts() {
     const posts = await db.all("SELECT * FROM posts ORDER BY timestamp DESC");
 
     // Close the DB
-    
+
     // Fetch comments for each post
     for (const post of posts) {
       const comments = await db.all(
         "SELECT * FROM comments WHERE postId = ? ORDER BY timestamp DESC",
         [post.id]
       );
+      console.log("in profile");
       post.comments = comments;
     }
     await db.close();
@@ -809,7 +706,6 @@ async function getPosts() {
     return null;
   }
 }
-
 
 // Function to add a new post
 async function addPost(title, content, username, image) {
@@ -827,7 +723,15 @@ async function addPost(title, content, username, image) {
     // Inseert data to datbase
     await db.run(
       "INSERT INTO posts (title, content, username, timestamp, likes, likedAmount,image) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [title, content, username, timestamp, likes, JSON.stringify(likedAmount),image]
+      [
+        title,
+        content,
+        username,
+        timestamp,
+        likes,
+        JSON.stringify(likedAmount),
+        image,
+      ]
     );
     // Check if they are being inserted into the datatbase
     console.log("Inserted post:", {
@@ -837,7 +741,7 @@ async function addPost(title, content, username, image) {
       timestamp,
       likes,
       likedAmount,
-      image
+      image,
     });
     // Close the database connection after all operations
     await db.close();
@@ -933,7 +837,6 @@ async function getFilteredPost(category) {
     console.log("Database connection closed after filtering");
 
     return posts;
-    
   } catch (error) {
     console.error("Error in getFilteredPost function:", error);
     throw new Error("Failed to fetch filtered posts");

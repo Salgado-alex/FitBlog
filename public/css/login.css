@@ -131,7 +131,7 @@ section button {
 section button:hover {
   background-color: #3d9bff;
 }
-form a {
+.login-prompt {
   display: inline-block;
   background-color: #4285F4;
   color: #fff;
@@ -139,6 +139,12 @@ form a {
   border-radius: 5px;
   text-decoration: none;
   font-weight: bold;
+  border-radius: 10px;
+
+}
+.login-prompt a{
+  text-decoration: none;
+  color: white;
 }
 /*-------------Footer----------------------*/
 footer {

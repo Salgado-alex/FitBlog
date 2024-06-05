@@ -107,39 +107,43 @@ function displayEmojis(emojis,limit=200) {
 function searchEmojis() {
     // Get the input of what the user is typing
     const input = document.getElementById('emoji-input').value;
-    // API key
-    const apiKey = 'ad6c364fbb24a47f20dc63561c4eb0125e9de92b';
 
-    console.log('Fetching emojis for search term:', input); 
-    // If api isnt working.
-    if(!apiKey){
-        alert('Api token is not loaded. Please check your cookie settings');
-        return;
-    }
-    // Url will used to make a fetch request to Emoji API
-    // The url is constructed bases on the users input and api key
-    // It a call to search for a specfic emoji 
-    const url = `https://emoji-api.com/emojis?search=${input}&access_key=${apiKey}`;
-    console.log('API URL:', url); 
-    // Send fetch request with url to the url
-    fetch(url)
-        // When succuesful
-        // Returns a response Object
-        // Parses it with .json()
+    //Request to the server for the Api key
+    fetch("/apiEmojiKey")
+        //parses the JSON-formatted
         .then(response => response.json())
-        // Once succesful it stores that parsed data in data and we put it onto the empty array 
-        .then(data => {
-            console.log('Emojis data:', data);
-            allEmojis = data;
-            // Call display function with the emoji data
-            displayEmojis(allEmojis);
+        //Once succesful proccesed 
+        .then(config => {
+            //Api key
+            const apiKey = config.apiKey;
+            if (!apiKey) {
+                alert('API token is not loaded. Please check your settings.');
+                return;
+            }
+            // Url will used to make a fetch request to Emoji API
+            // The url is constructed bases on the users input and api key
+            // It a call to search for a specfic emoji 
+            const url = `https://emoji-api.com/emojis?search=${input}&access_key=${apiKey}`;
+            console.log('API URL:', url); 
+            fetch(url)
+                .then(response => response.json())
+                // Once succesful it stores that parsed data in data and we put it onto the empty array 
+                .then(data => {
+                    console.log('Emojis data:', data);
+                    allEmojis = data;
+                    // Call display function with the emoji data
+                    displayEmojis(allEmojis);
+                })
+                .catch(error => {
+                    console.error('Error fetching emojis:', error);
+                    alert('Failed to fetch emojis. Please try again later.');
+                });
         })
-        // If something goes wrong excute this
         .catch(error => {
-            console.error('Error fetching emojis:', error);
-            alert('Failed to fetch emojis. Please try again later.');
+            console.error('Error fetching API key:', error);
+            alert('Failed to fetch API key. Please try again later.');
         });
-}
+} 
 
 function insertEmoji(emoji) {
     // put an emoji on a form somehow. 

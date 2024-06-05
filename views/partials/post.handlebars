@@ -40,36 +40,43 @@ to make the user experience better interaction within users
     <!-- Comments Section -->
     <div>
         
-       {{!-- Render Comments --}}
-       {{#if comments}}
-        <div class="comments-section">
-          <h3>Comments</h3>
-            {{#each comments}}
-                <div class="comment">
-                  <p><strong>{{username}}</strong> {{content}}</p>
-                </div>
-            {{/each}}
-            {{else}}
-                <div class="no-comment">
-                 <h3>No comments</h3>
-                </div>
-            {{/if}}
-          
-        </div>
-        {{!-- Comment form --}}
-        {{#if user.username}}
-        <div class="comment-form">
-            <form action="/comment" method="post">
-                <input type="hidden" name="postId" value="{{id}}">
-                <textarea name="content" placeholder="{{user.username}} write a comment..." required></textarea>
-                <button type="submit">Comment</button>
-            </form>
-        {{else}}
-        <div class="login-prompt">
-          <p>Please <a href="/login">log in</a> to comment.</p>
-        </div>
-          
-        {{/if}}
+ {{!-- Render Comments --}}
+{{#if this.comments}}
+<div class="comments-section">
+    <h3>Comments</h3>
+    {{#each this.comments}}
+    <div class="comment">
+        <p><strong>{{this.username}}</strong> {{this.content}}</p>
+    </div>
+    {{/each}}
+    {{else}}
+    <div class="no-comment">
+        <h3>No comments</h3>
+    </div>
+    {{/if}}
+</div>
+
+      {{!-- Comment form --}}
+{{#if user.username}}
+  {{#if username }}
+      <div class="comment-form">
+        <form action="/comment" method="post">
+        <input type="hidden" name="postId" value="{{id}}">
+        <textarea name="content" placeholder="{{user.username}} write a comment..." required></textarea>
+        <button type="submit">Comment</button>
+        </form>
+      </div>
+  {{else}}
+    <div class="cannot-comment">
+    <p> cannot comment </p>
+    </div>
+  {{/if}}
+{{else}}
+<div class="login-prompt">
+    <p>Please <a href="/login">log in</a> to comment.</p>
+</div>
+{{/if}}
+
         </div>
       
   </div>
