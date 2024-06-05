@@ -354,17 +354,17 @@ app.get("/logout", async (req, res) => {
 
 app.get("/googleLogout", (req, res) => {
   res.render("googleLogout", {
-    message: "You have been successfully logged out.",
     style: "styles.css",
   });
 });
 
 app.get("/logoutCallback", (req, res) => {
   console.log(req.session.Id, req.session.hashedGoogleId);
-  res.clearCookie("connect.sid");
-  res.redirect("/");
-  
-}); 
+  res.render("logOutCallback", {
+    message: "Succesfully Logged Out",
+    style: "styles.css",
+  });
+});
 
 app.post("/like/:id", isAuthenticated, (req, res) => {
   // TODO: Update post likes
@@ -631,55 +631,26 @@ function isAuthenticated(req, res, next) {
 }
 
 
-// async function loginUser(req, res) {
-//   try {
-//     // Get user name being inputed
-//     const username = req.body.username;
-//     // Open connection to database
-//     const db = await sqlite.open({
-//       filename: dbFileName,
-//       driver: sqlite3.Database,
-//     });
-//     console.log("Connected to the SQLite database.");
-//     // Looks in the database for username and if it matches it attaches it to user
-//     const user = await db.get("SELECT * FROM users WHERE username = ?", [
-//       username,
-//     ]);
-//     // Close the database connection
-//     await db.close();
-//     //  If found log in
-//     if (user) {
-//       // indcates the user is logged in
-//       req.session.loggedIn = true;
-//       // sets userID
-//       req.session.userId = user.id;
-//       console.log(user.id);
-//       // redirects to the main page
-//       res.redirect("/");
-//       console.log("User logged in:", user.username);
-//     }
-//     // User not in the system
-//     else {
-//       console.log("no user found");
-//       return res.redirect("/login?error=Username%20not%20found");
-//     }
-//   } catch (error) {
-//     // Handle any errors
-//     console.error("Error logging in:", error);
-//     res.redirect("/error");
-//   }
-// }
 
-// Function to logout a user
-
+// Route handler for logging out
 async function logoutUser(req, res) {
   try {
-    await req.session.destroy();
-    await res.redirect("/googleLogout");
-    // res.sendFile(__dirname + "/views/logout.html");
-    // // res.sendFile(path.join(__dirname, "public", "logout.html"));
+    console.log("Before destroying session");
+    // Check if session exists before destroying
+    if (req.session) {
+      await req.session.destroy();
+      console.log("Session destroyed successfully");
+    } else {
+      console.log("No session to destroy");
+    }
+    req.session = null;
+    // Clears the cookie on the client side 
+    res.clearCookie('connect.sid');
+    // Redirect to the home page or any other appropriate page
+    res.redirect("/googleLogout");
   } catch (err) {
     console.error("Error destroying session: ", err);
+    // Redirect to an error page if session destruction fails
     res.redirect("/error");
   }
 }

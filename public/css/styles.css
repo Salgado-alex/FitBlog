@@ -109,6 +109,9 @@ textarea {
   text-align: center;
   font-size: 40px;
 }
+#logoutMessage {
+  text-align: center;
+}
 /*-------Create A new Post-----------*/
 
 #title {
